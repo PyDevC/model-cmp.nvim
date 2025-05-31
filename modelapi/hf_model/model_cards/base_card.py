@@ -19,8 +19,13 @@ class BaseModelCard(ABC):
         self.model = model
         self.tokenizer = tokenizer
 
+        #self.model.eval()
+        #self.tokenizer.eval()
+
     @abstractmethod
-    def generate(self, message, max_new_tokens, temperature):
+    def generate(self, message, max_new_tokens):
         r"""Generate the text from message using model.generate or similar
         functions
         """
+
+# how to get memory capability

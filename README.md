@@ -9,3 +9,4 @@ for text completion.
 - Add Sphinx docs for modelapi
 - Add Quantized and Diffusion conversions of the model cards
 - Create attention masks for the models
+- Collect the memory
