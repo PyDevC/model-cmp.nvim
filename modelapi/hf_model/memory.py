@@ -7,16 +7,29 @@ gpu_complete_modules = []
 
 def get_free_memory_gb(device=None):
     """Gets all the memory free and reserved in gpu in GB"""
-    if device is None:
+    if device == cpu:
+        return 0
+    elif device is None:
         device = gpu
 
+    if len(torch.cuda.memory_stats().items()) == 0:
+        free_bytes, _ = torch.cuda.mem_get_info()
+        return free_bytes / (1024 ** 3)
+
     stats = torch.cuda.memory_stats(device)
-    reserved_bytes = stats['reserved_bytes']
-    active_bytes = stats['active_bytes']
+    reserved_bytes = stats['reserved_bytes.all.current']
+    active_bytes = stats['active_bytes.all.current']
     free_bytes, _ = torch.cuda.mem_get_info()
     reserved_inactive_bytes = reserved_bytes - active_bytes
     total_free_bytes = free_bytes + reserved_inactive_bytes
     return total_free_bytes / (1024 ** 3)
+
+def fake_weight_shift(model, target_device):
+    """Shifts the first weights of model to the target_device"""
+    for m in model.named_parameters():
+        if hasattr(m, 'weights'):
+            m.to(target_device)
+            return
 
 def onload_model_to_device_with_memory_preservation(model, target_device=None, preserved_memory=0):
     if not preserved_memory:
