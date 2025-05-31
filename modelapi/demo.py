@@ -37,8 +37,6 @@ if VRAM_RESTRICTION:
     fake_weight_shift(model_card.model, gpu)
 
 with open(linuxcode, 'r') as file:
-    messages = file.readline(3)
-
-print(messages)
+    messages = file.read()
 
 print(model_card.generate(messages))
