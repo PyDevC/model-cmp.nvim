@@ -3,7 +3,7 @@ import torch
 from abc import ABC, abstractmethod
 import os
 
-os.environ['HF_HOME'] = os.path.abspath(os.path.realpath(os.path.join(os.path.dirname(__file__), './hf_download')))
+os.environ['HF_HOME'] = os.path.abspath(os.path.realpath(os.path.join(os.path.dirname(__file__), 'hf_download')))
 
 class BaseModelCard(ABC):
     r"""Base Structure of Every Model
