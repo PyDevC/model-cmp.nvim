@@ -1,4 +1,5 @@
 from hf_model.model_cards.deepseek_coder import (
+    DeepSeek_Coder_1_3B_Instruct,
     DeepSeek_Coder_6_7B_Instruct,
     DeepSeek_Coder_6_7B_Instruct_Quant,
     DeepSeek_Coder_V2_Instruct,
@@ -36,7 +37,7 @@ if vram > 60:
 # Main program >>> not in main function cause of later integration with neovim
 ###############################################################################
 
-model_card = DeepSeek_Coder_6_7B_Instruct() # loaded the modelcard
+model_card = DeepSeek_Coder_1_3B_Instruct() # loaded the modelcard
 
 if VRAM_RESTRICTION:
     print("Appling VRAM_RESTRICTION")

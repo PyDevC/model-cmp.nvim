@@ -17,6 +17,12 @@ class DeepSeek_Coder_Base(BaseModelCard):
         decoded_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)[len(message):]
         return decoded_output
 
+class DeepSeek_Coder_1_3B_Instruct(DeepSeek_Coder_Base):
+    def __init__(self):
+        model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-1.3b-instruct", torch_dtype=torch.float16).cuda()
+        tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-1.3b-instruct")
+        super().__init__(model, tokenizer)
+
 class DeepSeek_Coder_6_7B_Instruct(DeepSeek_Coder_Base):
     def __init__(self):
         model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-6.7b-instruct", torch_dtype=torch.float16).cuda()
