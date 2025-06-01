@@ -1,0 +1,6 @@
+<|fim_begin|>
+struct node{
+	size_t *ops;
+    <|fim_hole|>
+};
+<|fim_end|>

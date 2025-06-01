@@ -36,7 +36,7 @@ if vram > 60:
 # Main program >>> not in main function cause of later integration with neovim
 ###############################################################################
 
-model_card = DeepSeek_Coder_6_7B_Instruct_Quant() # loaded the modelcard
+model_card = DeepSeek_Coder_6_7B_Instruct() # loaded the modelcard
 
 if VRAM_RESTRICTION:
     print("Appling VRAM_RESTRICTION")

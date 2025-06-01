@@ -29,7 +29,7 @@ function M.change_model(model_card)
   vim.notify("Model Changed to: " .. model_card.name)
 end
 
-vim.api.nvim_create_user_command('model_cmp', function(args)
+vim.api.nvim_create_user_command('Modelcmp', function(args)
   local fargs = args.fargs
   local actions = {}
 
