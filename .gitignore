@@ -1,4 +1,2 @@
-modelapi/hf_model/model/*
-modelapi/hf_model/tmp_trainer/*
 modelapi/hf_model/model_cards/hf_download/*
 *__pycache__*/
