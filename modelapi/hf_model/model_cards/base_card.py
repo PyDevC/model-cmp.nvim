@@ -1,4 +1,5 @@
 import torch
+from typing import LiteralString
 
 from abc import ABC, abstractmethod
 import os
@@ -23,7 +24,7 @@ class BaseModelCard(ABC):
         #self.tokenizer.eval()
 
     @abstractmethod
-    def generate(self, message, max_new_tokens):
+    def generate(self, message, max_new_tokens)->LiteralString:
         r"""Generate the text from message using model.generate or similar
         functions
         """
