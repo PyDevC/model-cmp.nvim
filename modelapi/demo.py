@@ -4,6 +4,7 @@ from hf_model.model_cards.deepseek_coder import (
     DeepSeek_Coder_6_7B_Instruct_Quant,
     DeepSeek_Coder_V2_Instruct,
     DeepSeek_Coder_V2_Instruct_Quant,
+    DeepSeek_Coder_V2_Lite_Instruct,
 )
 
 from hf_model.memory import (
@@ -39,6 +40,10 @@ if vram > 60:
 
 model_card = DeepSeek_Coder_1_3B_Instruct() # loaded the modelcard
 
+from torch.quantization import quantize_dynamic
+
+model_card.model = quantize_dynamic(model_card.model, {torch.nn.Linear}, dtype=torch.qint8)
+
 if VRAM_RESTRICTION:
     print("Appling VRAM_RESTRICTION")
     fake_weight_shift(model_card.model, gpu)
@@ -46,4 +51,5 @@ if VRAM_RESTRICTION:
 with open(linuxcode, 'r') as file:
     messages = file.read()
 
-print(model_card.generate(messages))
+output = model_card.generate(messages)
+print(output)

@@ -1,5 +1,4 @@
 local model_cards_list = require("model_cmp.model_cards_list")
-local ghosttext = require("model_cmp.ghosttext")
 local default_config = {}
 
 local M = {}
@@ -17,13 +16,9 @@ vim.api.nvim_create_user_command('Modelcmp', function(args)
   local actions = {}
 
   actions.ghosttext = {
-    enable = ghosttext.action.enable_auto_trigger,
-    disable = ghosttext.action.disable_auto_trigger,
-    toggle = ghosttext.action.toggle_auto_trigger,
-  }
-
-  actions.change_model = {
-    selected = print("hello")
+    enable = function() require("model_cmp.ghosttext").action.enable_auto_trigger() end,
+    disable = function() require("model_cmp.ghosttext").action.disable_auto_trigger() end,
+    toggle = function() require("model_cmp.ghosttext").action.toggle_auto_trigger() end,
   }
 end, {
   nargs = '+',

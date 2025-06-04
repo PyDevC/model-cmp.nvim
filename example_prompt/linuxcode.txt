@@ -1,6 +1,14 @@
-<|fim_begin|>
-struct node{
-	size_t *ops;
-    <|fim_hole|>
-};
-<|fim_end|>
+static bool kvm_vfio_file_is_valid(struct file *file)
+{
+	bool (*fn)(struct file *file);
+	bool ret;
+
+	fn = symbol_get(vfio_file_is_valid);
+	if (!fn)
+		return false;
+
+<|fim_hole|>
+	symbol_put(vfio_file_is_valid);
+
+	return ret;
+}
