@@ -21,6 +21,7 @@ from hf_model.memory import (
 
 import torch
 import os
+from hf_model.server import Server
 
 model_list = {
     "DeepSeek_Coder_1_3B_Instruct": DeepSeek_Coder_1_3B_Instruct,
@@ -31,21 +32,28 @@ model_list = {
     "DeepSeek_Coder_V2_Lite_Instruct": DeepSeek_Coder_V2_Lite_Instruct,
 }
 
-def get_messages():
-    pass
-
 def attach_model(model_name="DeepSeek_Coder_1_3B_Instruct"):
     """Attach model based on the name selected"""
     model_card = model_list[model_name]()
     return model_card
 
 def start_inference(model_card:DeepSeek_Coder_Base):
-    while True:
-        messages = get_messages() # get message from the plugin
-        model_card.generate(messages)
-        # sent output to the plugin 
+    server = Server()
+    server.start_server()
+    while server.running:
+        message, secondary = server.receive()
+        if message == "Stop":
+            server.stop_server()
+            break
+        elif message == "change_model":
+            torch.cuda.empty_cache()
+            model_card = attach_model(secondary)
+
+        suggestion = model_card.generate(message)
+        server.send(suggestion)
 
 def main():
     model_card = attach_model()
     start_inference(model_card)
 
+main()

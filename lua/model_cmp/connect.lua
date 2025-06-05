@@ -7,24 +7,40 @@
 --2. receives the suggestions made by the modelapi
 --3. can perform co-tasks such as changing model.
 
+local popen = io.popen
+
 local M = {}
+
+function M.get_suggestion(ctx)
+  M.action.send(ctx)
+  local suggestion = M.action.receive()
+  return suggestion
+end
 
 local action = {}
 
---Start the python model server
-function action:start()
+function action.start()
+  popen("python3 modelapi/run.py")
+  print("Model inference started ")
 end
 
---Stop the python model server
-function action:stop()
+--Signals the modelapi server to stop
+function action.stop()
+  action.send({ "Stop" })
 end
 
---Send some message
-function action:send()
+function action.change_model(model_name)
 end
 
---Receive some message
-function action:receive()
+--Send the message to the modelapi server
+---@param message table: message can be a command or context
+function action.send(message)
+end
+
+--Gets the message from the async queue in modelapi server
+---@return table: receives the completion from the model for now
+function action.receive()
+  return {}
 end
 
 M.action = action

@@ -1,6 +1,6 @@
 local connect = require("model_cmp.connect")
+
 local M = {}
-print("Loading ")
 
 M.ns_id = vim.api.nvim_create_namespace("ghosttext")
 M.augroup = vim.api.nvim_create_augroup("model_cmp")
@@ -12,6 +12,8 @@ M.augroup = vim.api.nvim_create_augroup("model_cmp")
 ---@field ctx table: context window for the text to be sent to the model
 ---@field suggestion table: suggestion by the model to be displayed as ghosttext
 ---@field bufnr integer: where to display the ghosttext
+--Context manager collects and stores the context and suggestions for an instance,
+--A new context is set depending on the cursor position and the context around
 local ctx_manager = {
   aug_id = M.augroup,
   ns_id = M.ns_id,
@@ -71,7 +73,7 @@ local get_ctx_location = function()
   end
 end
 
-local get_ctx = function()
+M.get_ctx = function()
   local ctx_location = get_ctx_location()
   local text = {}
   if #ctx_location == 2 then
@@ -104,8 +106,8 @@ end
 local action = {}
 
 function action.accept(n_lines)
-  local ctx = get_ctx()
-  local suggestion = get_suggestion()
+  local ctx = M.get_ctx()
+  local suggestion = connect.get_suggestion(ctx)
 
   if not suggestion or vim.fn.empty(suggestion) == 1 then
     return

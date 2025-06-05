@@ -4,7 +4,8 @@ from typing import LiteralString
 from abc import ABC, abstractmethod
 import os
 
-os.environ['HF_HOME'] = os.path.abspath(os.path.realpath(os.path.join(os.path.dirname(__file__), 'hf_download')))
+if os.getenv('HF_HOME') is None:
+    os.environ['HF_HOME'] = os.path.abspath(os.path.realpath(os.path.join(os.path.dirname(__file__), 'hf_download')))
 
 class BaseModelCard(ABC):
     r"""Base Structure of Every Model
@@ -20,13 +21,8 @@ class BaseModelCard(ABC):
         self.model = model
         self.tokenizer = tokenizer
 
-        #self.model.eval()
-        #self.tokenizer.eval()
-
     @abstractmethod
     def generate(self, message, max_new_tokens)->LiteralString:
         r"""Generate the text from message using model.generate or similar
         functions
         """
-
-# how to get memory capability
