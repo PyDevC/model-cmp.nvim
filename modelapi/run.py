@@ -21,7 +21,6 @@ from hf_model.memory import (
 
 import torch
 import os
-from hf_model.server import Server
 
 model_list = {
     "DeepSeek_Coder_1_3B_Instruct": DeepSeek_Coder_1_3B_Instruct,
@@ -32,28 +31,70 @@ model_list = {
     "DeepSeek_Coder_V2_Lite_Instruct": DeepSeek_Coder_V2_Lite_Instruct,
 }
 
-def attach_model(model_name="DeepSeek_Coder_1_3B_Instruct"):
-    """Attach model based on the name selected"""
-    model_card = model_list[model_name]()
-    return model_card
+from flask import Flask, request, jsonify
+from multiprocessing import Process
+import logging
 
-def start_inference(model_card:DeepSeek_Coder_Base):
-    server = Server()
-    server.start_server()
-    while server.running:
-        message, secondary = server.receive()
-        if message == "Stop":
-            server.stop_server()
-            break
-        elif message == "change_model":
-            torch.cuda.empty_cache()
-            model_card = attach_model(secondary)
+app = Flask(__file__)
+log = logging.getLogger('werkzeug')
+log.disabled = True 
 
-        suggestion = model_card.generate(message)
-        server.send(suggestion)
+class Server:
+    def __init__(self, app, model_card):
+        self.app = app
+        self.model_card = model_card
+        self.server = None
 
-def main():
-    model_card = attach_model()
-    start_inference(model_card)
+    def change_model(self, name):
+        if name == self.model_card.name:
+            return
+        del self.model_card
+        self.model_card = model_list[name]()
+    
+    def start_inference(self):
+        if self.server is None:
+            self.server = Process(target=self.app.run)
+            self.server.start()
+    
+    def stop_inference(self):
+        if self.server is not None:
+            self.server.terminate()
 
-main()
+def get_suggestions(context):
+    # Will be change in future into more scalable code
+    action = context.get("action")
+    message = context.get("context_message")
+    suggestions = []
+
+    if "stop" in action.lower():
+        server.stop_inference()
+
+    elif "change_model" in action.lower():
+        server.change_model("message")
+
+    elif "code_completion" in action.lower():
+        model_card = server.model_card
+        output = model_card.generate(message)
+        return output
+
+    else:
+        pass
+
+
+@app.route('/context', methods=['POST'])
+def handle_context():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "No context_message provided"}), 400
+
+    suggestions = get_suggestions(data)
+    if suggestions:
+        return jsonify({
+            "suggestions": suggestions,
+        })
+    return jsonify({""})
+
+model_card = model_list["DeepSeek_Coder_1_3B_Instruct"]()
+server = Server(app, model_card)
+server.start_inference()

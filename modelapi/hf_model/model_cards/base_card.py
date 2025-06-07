@@ -17,7 +17,8 @@ class BaseModelCard(ABC):
             tokenizer = 
             super().__init__(model, tokenizer)
     """
-    def __init__(self, model, tokenizer):
+    def __init__(self,name, model, tokenizer):
+        self.name = name
         self.model = model
         self.tokenizer = tokenizer
 

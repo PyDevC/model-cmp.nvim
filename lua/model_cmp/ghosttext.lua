@@ -107,7 +107,7 @@ local action = {}
 
 function action.accept(n_lines)
   local ctx = M.get_ctx()
-  local suggestion = connect.get_suggestion(ctx)
+  local suggestion = connect.action.contextsend(ctx)
 
   if not suggestion or vim.fn.empty(suggestion) == 1 then
     return

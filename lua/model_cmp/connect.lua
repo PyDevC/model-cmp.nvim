@@ -1,20 +1,21 @@
---Module directly connects to the python modelapi
---It directly connects to the server established in modelapi run.py
---It has capability to start and stop modelapi run.py
---
---Once the connection is established, the following commands can be allowed
---1. send the context message for getting the model output
---2. receives the suggestions made by the modelapi
---3. can perform co-tasks such as changing model.
-
 local popen = io.popen
+local curl = require("plenary.curl")
 
 local M = {}
 
-function M.get_suggestion(ctx)
-  M.action.send(ctx)
-  local suggestion = M.action.receive()
-  return suggestion
+function M.send_and_receive(context_message)
+  local body = vim.fn.json_encode(context_message)
+
+  local response = curl.post("http://127.0.0.1:5000/context", {
+    body = body,
+    headers = {
+      ["Content-Type"] = "application/json",
+      ["Content-Length"] = tostring(#body),
+    },
+  })
+
+  local parsed = vim.fn.json_decode(response.body)
+  return parsed.suggestion
 end
 
 local action = {}
@@ -24,23 +25,16 @@ function action.start()
   print("Model inference started ")
 end
 
---Signals the modelapi server to stop
 function action.stop()
-  action.send({ "Stop" })
+  M.send_and_receive({ action = "stop", context_message = "" })
 end
 
 function action.change_model(model_name)
+  M.send_and_receive({ action = "change_model", context_message = model_name })
 end
 
---Send the message to the modelapi server
----@param message table: message can be a command or context
-function action.send(message)
-end
-
---Gets the message from the async queue in modelapi server
----@return table: receives the completion from the model for now
-function action.receive()
-  return {}
+function action.contextsend(context)
+  M.send_and_receive({ action = "code_completion", context_message = context })
 end
 
 M.action = action
