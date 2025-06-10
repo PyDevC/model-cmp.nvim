@@ -2,6 +2,10 @@
 
 Under Development
 
+## Key takes
+- moving server to a seperate repository
+- refactoring is required
+
 An auto-complete plugin for neovim with AI integration, made to run local AI,
 for text completion.
 
