@@ -3,7 +3,7 @@ local connect = require("model_cmp.connect")
 local M = {}
 
 M.ns_id = vim.api.nvim_create_namespace("ghosttext")
-M.augroup = vim.api.nvim_create_augroup("model_cmp")
+M.augroup = vim.api.nvim_create_augroup("model_cmp", { clear = true })
 
 ---@class context_manager
 ---@field aug_id integer: augroup id

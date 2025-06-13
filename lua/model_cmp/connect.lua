@@ -1,40 +1,63 @@
-local popen = io.popen
-local curl = require("plenary.curl")
-
+local plenary = require("plenary.curl")
+local string = string
 local M = {}
 
-function M.send_and_receive(context_message)
-  local body = vim.fn.json_encode(context_message)
+local message_types = {
+  code = 1,
+  command = 2,
+  general = 3,
+}
 
-  local response = curl.post("http://127.0.0.1:5000/context", {
-    body = body,
-    headers = {
-      ["Content-Type"] = "application/json",
-      ["Content-Length"] = tostring(#body),
-    },
-  })
+M.Client = {
+  url = "http://127.0.0.1:",
+  port = 8888,
+}
 
-  local parsed = vim.fn.json_decode(response.body)
-  return parsed.suggestion
+M.message = {
+  type = message_types.general,
+  content = "",
+  max_token_limit = 128,
+}
+
+local check_message = function(message)
+  -- Checking availability of message
+  if message.type == nil then
+    return false
+  elseif message.content == "" then
+    return false
+  elseif message.max_token_limit < 20 then
+    return false
+  end
+
+  -- Check the code completion validity
+  if message.type == 1 then
+    if string.find(message.content, "<|fim_hole|>") then
+      return false
+    end
+  end
+  return true
 end
 
 local action = {}
 
-function action.start()
-  popen("python3 modelapi/run.py")
-  print("Model inference started ")
+function action.connect(url, port)
+  url = url or M.Client.url
+  port = port or M.Client.port
+
+  local full_url = url .. port
+  return full_url
 end
 
-function action.stop()
-  M.send_and_receive({ action = "stop", context_message = "" })
+function action.send(message)
+  if check_message(message) then
+    -- send the message
+  end
 end
 
-function action.change_model(model_name)
-  M.send_and_receive({ action = "change_model", context_message = model_name })
+function action.receive()
 end
 
-function action.contextsend(context)
-  M.send_and_receive({ action = "code_completion", context_message = context })
+function action.send_command(command)
 end
 
 M.action = action
