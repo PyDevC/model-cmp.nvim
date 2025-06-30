@@ -1,4 +1,5 @@
 local model_cards = require("model_cmp.model_cards")
+local connect = require("model_cmp.connect")
 local default_config = {}
 
 local M = {}
@@ -23,14 +24,21 @@ vim.api.nvim_create_user_command('Modelcmp', function(args)
   }
 
   if fargs[1] == 'start' then
-    local start = require("model_cmp.connect").action.start
+    local start = connect.action.start
     start()
+  elseif fargs[1] == 'close' then
+    local close = connect.action.close
+    close()
   elseif fargs[1] == 'stop' then
-    local stop = require("model_cmp.connect").action.stop
+    local stop = connect.action.stop
     stop()
   elseif fargs[1] == 'change_model' then
-    model_cards.change_model(fargs[2])
+    local change_model = model_cards.change_model
+    change_model(fargs[2])
     print("Model updated to " .. model_cards.current_model)
+  elseif fargs[1] == 'connect' then
+    local connect_server = connect.action.connect
+    connect_server(fargs[2], fargs[3])
   else
     actions[fargs[1]][fargs[2]]()
   end
@@ -51,7 +59,7 @@ end, {
       }
     end
 
-    return { 'ghosttext', 'change_model', 'start' }
+    return { 'ghosttext', 'change_model', 'start', 'stop', 'close', 'connect' }
   end,
 })
 

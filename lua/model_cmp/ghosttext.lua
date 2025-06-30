@@ -2,10 +2,12 @@ local connect = require("model_cmp.connect")
 
 local M = {}
 
+-- Refactoring according to new context engine
+
 M.ns_id = vim.api.nvim_create_namespace("ghosttext")
 M.augroup = vim.api.nvim_create_augroup("model_cmp", { clear = true })
 
----@class context_manager
+---@class virtual_text
 ---@field aug_id integer: augroup id
 ---@field ns_id integer: namespace id
 ---@field ext_id integer: extmark id
@@ -14,7 +16,7 @@ M.augroup = vim.api.nvim_create_augroup("model_cmp", { clear = true })
 ---@field bufnr integer: where to display the ghosttext
 --Context manager collects and stores the context and suggestions for an instance,
 --A new context is set depending on the cursor position and the context around
-local ctx_manager = {
+local text_manager = {
   aug_id = M.augroup,
   ns_id = M.ns_id,
   ext_id = 1,
@@ -22,6 +24,8 @@ local ctx_manager = {
   suggestion = {},
   bufnr = vim.api.nvim_get_current_buf(),
 }
+
+---@class virtual_text
 
 local clear_preview = function()
   vim.api.nvim_buf_del_extmark(0, M.ns_id, M.ext_id)
@@ -35,6 +39,8 @@ local should_auto_trigger = function()
   end
 end
 
+--Moving to context engine
+--
 --Get the context location based on the cursor location
 --gets the location in two formats: 1. line 2. function
 --uses function range to get the rows and columns for function
@@ -73,31 +79,37 @@ local get_ctx_location = function()
   end
 end
 
+-- moving to context engine
 M.get_ctx = function()
   local ctx_location = get_ctx_location()
   local text = {}
   if #ctx_location == 2 then
-    text = vim.api.nvim_buf_get_lines(ctx_manager.bufnr, ctx_location[1] - 1, ctx_location[1], false)
+    text = vim.api.nvim_buf_get_lines(text_manager.bufnr, ctx_location[1] - 1, ctx_location[1], false)
   elseif #ctx_location == 4 then
-    text = vim.api.nvim_buf_get_lines(ctx_manager.bufnr, ctx_location[1] - 1, ctx_location[3], false)
+    text = vim.api.nvim_buf_get_lines(text_manager.bufnr, ctx_location[1] - 1, ctx_location[3], false)
   end
-  ctx_manager.ctx = { text }
+  text_manager.ctx = { text }
   return text
 end
 
 -- RESET functions
 
 local reset_ctx = function()
-  ctx_manager.ctx = {}
+  text_manager.ctx = {}
 end
 
 local reset_suggestion = function()
-  ctx_manager.suggestion = {}
+  text_manager.suggestion = {}
 end
 
 local reset = function()
   reset_ctx()
   reset_suggestion()
+end
+
+function M.show_ghosttext(line, col, opts)
+  opts = opts or {}
+  vim.api.nvim_buf_set_extmark(0, M.ns_id, line, col, opts)
 end
 
 ------------------------------------------------------------------------------
