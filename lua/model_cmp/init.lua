@@ -74,7 +74,7 @@ function M.setup()
 
     -- Key binds
     vim.keymap.set("i", "<C-s>", "<CMD>ModelCmp capture first<CR>", {})
-    vim.keymap.set("i", "<C-b>", "<CMD>ModelCmp capture all<CR>",{})
+    vim.keymap.set("i", "<C-b>", "<CMD>ModelCmp capture all<CR>", {})
 end
 
 -- UserCommands
@@ -106,8 +106,11 @@ end, {
                 'toggle'
             }
         end
+        if cmdline:find 'capture' then
+            return { 'first', 'all' }
+        end
 
-        return { 'virtualtext' }
+        return { 'virtualtext', 'capture' }
     end,
 })
 

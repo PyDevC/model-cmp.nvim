@@ -59,8 +59,18 @@ end
 local action = {}
 
 function action.capturefirstline()
-    local cursor = context.ContextEngine.cursor
-    vim.api.nvim_buf_set_text(0, cursor[1], cursor[2], cursor[1], #M.CaptureText.lines[1], M.CaptureText.lines[1])
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    local line, col = cursor[1] - 1, cursor[2]
+    M.CaptureText = vim.list_slice(M.CaptureText, 1, 1)
+    M.VirtualText:clear_preview()
+
+    vim.api.nvim_buf_set_text(0, line, col, line, col, M.CaptureText)
+    local new_col = vim.fn.strcharlen(M.CaptureText[#M.CaptureText])
+    if #M.CaptureText == 1 then
+        new_col = new_col + col
+    end
+    vim.api.nvim_win_set_cursor(0, { line + #M.CaptureText, new_col })
+    M.CaptureText = {}
 end
 
 function action.capturealllines()
