@@ -1,99 +1,70 @@
-local uv = vim.loop
+local context = require("model_cmp.context")
+
 local M = {}
 
-local default_config = {
-    virt_text_style = {
-        fg = "#333333", -- Slightly grey
-        bg = "",        -- transparent background or default
-        bold = false,   -- No bolds
-        italic = false, -- No italics
-    }
-}
-
-function M.setup(config)
-    M.presets = config.presets or {}
-    M.presets.original = config
-    config.presets = nil
-
-    M.config = vim.tbl_deep_extend('force', default_config, config or {})
-
-    if vim.tbl_isempty(vim.api.nvim_get_hl(0, { name = 'ModelGhosttext' })) then
-        vim.api.nvim_set_hl(0, 'ModelGhosttext', M.config.virt_text_style)
-    end
-end
-
 M.ns_id = vim.api.nvim_create_namespace("model_cmp.ghosttext")
-M.augroup = vim.api.nvim_create_augroup("ModelGhosttext", { clear = true })
+M.augroup = vim.api.nvim_create_augroup("ModelGhosttext", { clear = true }) -- we will this in future for virtual text themes
 
+M.CaptureText = {}
 
----@class virtual_text
----@field aug_id integer: augroup id
----@field ns_id integer: namespace id
----@field ext_id integer: extmark id
----@field ctx table: context window for the text to be sent to the model
----@field suggestion table: suggestion by the model to be displayed as ghosttext
----@field bufnr integer: where to display the ghosttext
----
----Simple Text manager for virtual text
-local text_manager = {
+---@class ModelCmp.VitualText
+---@field aug_id integer augroup id
+---@field ns_id integer namespace id
+---@field ext_ids integer[] extmark ids
+M.VirtualText = {
     aug_id = M.augroup,
     ns_id = M.ns_id,
-    ext_id = 1,
-    ctx = {},
-    suggestion = {},
-    bufnr = vim.api.nvim_get_current_buf(),
+    ext_ids = {},
 }
 
-local clear_preview = function()
-    vim.api.nvim_buf_del_extmark(0, text_manager.ns_id, text_manager.ext_id)
+function M.VirtualText:clear_preview(ext_ids_arg)
+    local ext_ids = ext_ids_arg or self.ext_ids
+    for ext_id in pairs(ext_ids) do
+        vim.api.nvim_buf_del_extmark(0, self.ns_id, ext_id)
+    end
 end
 
-local reset_ctx = function()
-    text_manager.ctx = {}
-end
-
-local reset_suggestion = function()
-    text_manager.suggestion = {}
-end
-
-local reset = function()
-    clear_preview()
-    reset_ctx()
-    reset_suggestion()
-end
-
-local update_preview = function(displaytext)
-    -- Setup context
-    -- Setup Suggestions
-
-    if displaytext == nil then
+function M.VirtualText:update_preview(text)
+    if vim.api.nvim_get_mode().mode ~= "i" then
         return
     end
-    -- Get Cursor pos and line
-    local cursorcol = vim.fn.col '.'
-    local cursorline = vim.fn.line '.'
+    local ctx = context.ContextEngine:get_ctx()
+    local cursor = context.ContextEngine.cursor
 
-    local extmark = {
-        id = text_manager.ext_id,
-        virt_text = { { displaytext, 'ModelGhosttext' } },
-        virt_text_pos = 'inline'
-    }
-
-    vim.api.nvim_buf_set_extmark(0, text_manager.ns_id, cursorline - 1, cursorcol - 1, extmark)
-end
-
-local trigger = function(displaytext)
-    if vim.fn.mode() ~= 'i' then
-        clear_preview()
-        return
+    local lines = {}
+    for line in text:gmatch("[^\r\n]+") do
+        table.insert(lines, line)
     end
-    update_preview(displaytext)
+
+    local max_line = vim.api.nvim_buf_line_count(0) - cursor[1] + 1
+    local extmark = {}
+    for idx, line in ipairs(lines) do
+        if idx == max_line then
+            return
+        end
+        table.insert(self.ext_ids, idx)
+        extmark = {
+            id = idx,
+            virt_text = { { line, 'Comment' } },
+            right_gravity = true,
+        }
+        vim.api.nvim_buf_set_extmark(0, self.ns_id, cursor[1] + idx - 2, 0, extmark)
+    end
+    M.CaptureText = lines
 end
 
 ------------------------------------------------------------------------------
 ---------------------------------ACTION---------------------------------------
 ------------------------------------------------------------------------------
 local action = {}
+
+function action.capturefirstline()
+    local cursor = context.ContextEngine.cursor
+    vim.api.nvim_buf_set_text(0, cursor[1], cursor[2], cursor[1], #M.CaptureText.lines[1], M.CaptureText.lines[1])
+end
+
+function action.capturealllines()
+end
 
 function action.disable_auto_trigger()
     vim.g.model_cmp_ghosttext_auto_trigger = false
@@ -109,20 +80,9 @@ function action.toggle_auto_trigger()
     end
 end
 
-function action.clear_preview()
-    clear_preview()
+function action.clear_preview(ext_ids_arg)
+    M.VirtualText:clear_preview(ext_ids_arg)
 end
-
-function action.trigger(displaytext)
-    trigger(displaytext)
-end
-
-vim.api.nvim_create_autocmd('InsertLeave', {
-    group = M.augroup,
-    callback = clear_preview,
-    desc = ''
-})
-
 
 M.action = action
 

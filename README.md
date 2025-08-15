@@ -1,9 +1,20 @@
 # Model-cmp.nvim
 
-**Warning do not run or install right now you will messup**
+AI autocomplete plugin for neovim
 
-Under Development
+## How to launch the server
 
-## Features
+launch the llama-server on http://127.0.0.1:8080
 
-- [ ] Virtual Text Suggestions
+## Installation
+
+### Lazy.nvim
+
+```lua
+return {
+    "PyDevC/model-cmp.nvim",
+    config = function ()
+        require("model_cmp").setup()
+    end
+}
+```

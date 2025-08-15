@@ -5,9 +5,7 @@ local M = {}
 M.requests = {} -- This can store pending jobs or request data
 
 function M.send(request_args, callback)
-
     local result = {}
-
     local job = Job:new({
         command = "curl",
         args = request_args,
@@ -21,7 +19,6 @@ function M.send(request_args, callback)
             end
         end,
     })
-
     job:start()
     table.insert(M.requests, job) -- Optional: keep track of active jobs
 end
