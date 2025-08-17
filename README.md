@@ -18,3 +18,14 @@ return {
     end
 }
 ```
+
+## What technique do we use?
+
+We actually use few shot prompting with self experimentation
+
+## Current Limitations
+
+- limited to the capabilities of the underlying LLM model.
+- No configurations
+- does not work well with markdown
+- Output cpature does not work properly
