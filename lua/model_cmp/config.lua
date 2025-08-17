@@ -4,6 +4,13 @@ local M = {}
 ---@field delay integer delay between each request in ms
 ---@field api table<string, table<string, any>> API request or server request config
 ---@field virtualtext table<string, string> virtual text (ghosttext) config
+---@field prompt Prompt prompts for api
+
+---@class Prompt
+---@field basic_template string
+---@field rules string
+---@field language string
+---@field precontext string
 
 ---@return ModelCmp.Config
 function M.default()
@@ -19,6 +26,12 @@ function M.default()
             type = "inline",
             style = {
             }
+        },
+        prompt = {
+            basic_template = "",
+            rules = "",
+            language = "",
+            precontext = ""
         },
     }
 end

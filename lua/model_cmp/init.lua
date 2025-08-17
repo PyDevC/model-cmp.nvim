@@ -61,7 +61,11 @@ local function create_autocmd()
         'TextChangedI', -- after a change was made to the text in the current buffer in insert mode
         {
             group = model_cmp_grp,
+            pattern="*.*",
             callback = function()
+                if not vim.g.model_cmp_ghosttext_auto_trigger then
+                    return
+                end
                 llama.text_changed()
             end
         }
@@ -70,6 +74,7 @@ end
 
 
 function M.setup()
+    vim.g.model_cmp_ghosttext_auto_trigger = true
     create_autocmd()
 
     -- Key binds
@@ -83,7 +88,7 @@ vim.api.nvim_create_user_command('ModelCmp', function(args)
     local actions = {}
 
     -- Ghosttext options
-    actions.ghosttext = {
+    actions.virtualtext = {
         enable = function() ghosttext.action.enable_auto_trigger() end,
         disable = function() ghosttext.action.disable_auto_trigger() end,
         toggle = function() ghosttext.action.toggle_auto_trigger() end
@@ -93,6 +98,7 @@ vim.api.nvim_create_user_command('ModelCmp', function(args)
         all = function() ghosttext.action.capturealllines() end,
     }
 
+    print(fargs[1], fargs[2])
     actions[fargs[1]][fargs[2]]()
 end, {
     nargs = '+',

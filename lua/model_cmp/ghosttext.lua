@@ -39,16 +39,18 @@ function M.VirtualText:update_preview(text)
     local max_line = vim.api.nvim_buf_line_count(0) - cursor[1] + 1
     local extmark = {}
     for idx, line in ipairs(lines) do
-        if idx == max_line then
-            return
+        if not line:find "```" then
+            if idx == max_line then
+                return
+            end
+            table.insert(self.ext_ids, idx)
+            extmark = {
+                id = idx,
+                virt_text = { { line, 'Comment' } },
+                right_gravity = true,
+            }
+            vim.api.nvim_buf_set_extmark(0, self.ns_id, cursor[1] + idx - 2, 0, extmark)
         end
-        table.insert(self.ext_ids, idx)
-        extmark = {
-            id = idx,
-            virt_text = { { line, 'Comment' } },
-            right_gravity = true,
-        }
-        vim.api.nvim_buf_set_extmark(0, self.ns_id, cursor[1] + idx - 2, 0, extmark)
     end
     M.CaptureText = lines
 end

@@ -24,4 +24,3 @@ function M.send(request_args, callback)
 end
 
 return M
-

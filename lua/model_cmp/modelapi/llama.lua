@@ -2,6 +2,7 @@ local curl = require("model_cmp.modelapi.curl")
 local context = require("model_cmp.context")
 local systemprompt = require("model_cmp.modelapi.prompt")
 local ghosttext = require("model_cmp.ghosttext")
+local utils = require("model_cmp.utils")
 
 local M = {}
 
@@ -14,6 +15,17 @@ end
 function M.send_request()
     local prompt = context.generate_context_text()
     local lang = context.ContextEngine:get_currlang()
+    local complete_prompt = "# language: " .. lang .. prompt
+
+    local few_shots = systemprompt.complete_few_shots
+
+    local messages = {}
+    table.insert(messages, systemprompt.default)
+    for _, msg in ipairs(few_shots) do
+        table.insert(messages, msg)
+    end
+
+    table.insert(messages, { role = "user", content = complete_prompt })
     local request = {
         "-s",
         "-X", "POST",
@@ -22,33 +34,18 @@ function M.send_request()
         "-d",
         vim.fn.json_encode({
             model = "llama",
-            messages = {
-                { role = "system", content = systemprompt[1] .. lang },
-                { role = "user",   content = prompt },
-            },
-            n_predict = 64,
+            messages = messages,
+            n_predict = 128,
             temperature = 0.1,
-            stop = { "</s>" }
+            stop = { "</s>" },
+            max_token = 50
         }),
     }
     vim.b.request_sent = true
     curl.send(request,
         function(response)
             vim.schedule(function()
-                -- Use vim.json.decode with error handling
-                local ok, decoded = pcall(vim.json.decode, response)
-                if not ok then
-                    return
-                end
-
-                local text = ""
-                if decoded.choices and decoded.choices[1] and decoded.choices[1].message then
-                    text = decoded.choices[1].message.content
-                elseif decoded.choices and decoded.choices[1].text then
-                    text = decoded.choices[1].text
-                elseif decoded.content then
-                    text = decoded.content
-                end
+                local text = utils.decode_response(response)
                 ghosttext.VirtualText:update_preview(text)
                 vim.b.request_sent = false
             end)
