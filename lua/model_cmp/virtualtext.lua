@@ -2,8 +2,8 @@ local context = require("model_cmp.context")
 
 local M = {}
 
-M.ns_id = vim.api.nvim_create_namespace("model_cmp.ghosttext")
-M.augroup = vim.api.nvim_create_augroup("ModelGhosttext", { clear = true }) -- we will this in future for virtual text themes
+M.ns_id = vim.api.nvim_create_namespace("model_cmp.virtualtext")
+M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true }) -- we will this in future for virtual text themes
 
 M.CaptureText = {}
 
@@ -25,6 +25,10 @@ function M.VirtualText:clear_preview(ext_ids_arg)
 end
 
 function M.VirtualText:update_preview(text)
+    if text == nil then
+        return
+    end
+
     if vim.api.nvim_get_mode().mode ~= "i" then
         return
     end
@@ -79,16 +83,16 @@ function action.capturealllines()
 end
 
 function action.disable_auto_trigger()
-    vim.g.model_cmp_ghosttext_auto_trigger = false
+    vim.g.model_cmp_virtualtext_auto_trigger = false
 end
 
 function action.enable_auto_trigger()
-    vim.g.model_cmp_ghosttext_auto_trigger = true
+    vim.g.model_cmp_virtualtext_auto_trigger = true
 end
 
 function action.toggle_auto_trigger()
-    vim.g.model_cmp_ghosttext_auto_trigger = function()
-        return not vim.b.model_cmp_ghosttext_auto_trigger
+    vim.g.model_cmp_virtualtext_auto_trigger = function()
+        return not vim.b.model_cmp_virtualtext_auto_trigger
     end
 end
 

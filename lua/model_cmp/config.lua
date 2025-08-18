@@ -3,7 +3,7 @@ local M = {}
 ---@class ModelCmp.Config
 ---@field delay integer delay between each request in ms
 ---@field api table<string, table<string, any>> API request or server request config
----@field virtualtext table<string, string> virtual text (ghosttext) config
+---@field virtualtext table<string, string> virtual text config
 ---@field prompt Prompt prompts for api
 
 ---@class Prompt

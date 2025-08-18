@@ -1,7 +1,7 @@
 local curl = require("model_cmp.modelapi.curl")
 local context = require("model_cmp.context")
 local systemprompt = require("model_cmp.modelapi.prompt")
-local ghosttext = require("model_cmp.ghosttext")
+local virtualtext = require("model_cmp.virtualtext")
 local utils = require("model_cmp.utils")
 
 local M = {}
@@ -10,6 +10,9 @@ vim.b.request_sent = false
 
 local get_server_url = function() -- get server url from the user or from the config
     return "http://127.0.0.1:8080/v1/chat/completions"
+end
+
+function M.check_server_running()
 end
 
 function M.send_request()
@@ -46,7 +49,7 @@ function M.send_request()
         function(response)
             vim.schedule(function()
                 local text = utils.decode_response(response)
-                ghosttext.VirtualText:update_preview(text)
+                virtualtext.VirtualText:update_preview(text)
                 vim.b.request_sent = false
             end)
         end
@@ -60,7 +63,7 @@ function M.text_changed()
     if vim.b.request_sent then
         return
     end
-    ghosttext.action.clear_preview()
+    virtualtext.action.clear_preview()
     M.send_request()
 end
 
