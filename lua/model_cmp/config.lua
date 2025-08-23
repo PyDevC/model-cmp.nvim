@@ -15,23 +15,19 @@ local M = {}
 ---@return ModelCmp.Config
 function M.default()
     return {
-        delay = 0,
         api = {
             url = "", -- url to the server, defaults are already set, you just need to setup this up only if the url is different for your server
             key = "", -- None if using local
             type = "" -- EX: OPENAI, Claude, Gemini, llama.cpp(local or none are also valid)
         },
         virtualtext = {
-            enable = true,
+            enable = false,
             type = "inline",
-            style = {
+            style = { -- This is just a highlight group
+                fg = "#b53a3a",
+                italic = false,
+                bold = false
             }
-        },
-        prompt = {
-            basic_template = "",
-            rules = "",
-            language = "",
-            precontext = ""
         },
     }
 end

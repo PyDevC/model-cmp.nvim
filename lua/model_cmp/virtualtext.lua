@@ -32,7 +32,6 @@ function M.VirtualText:update_preview(text)
     if vim.api.nvim_get_mode().mode ~= "i" then
         return
     end
-    local ctx = context.ContextEngine:get_ctx()
     local cursor = context.ContextEngine.cursor
 
     local lines = {}
@@ -50,13 +49,19 @@ function M.VirtualText:update_preview(text)
             table.insert(self.ext_ids, idx)
             extmark = {
                 id = idx,
-                virt_text = { { line, 'Comment' } },
+                virt_text = { { line, "CustomVirttextHighlight" } },
                 right_gravity = true,
             }
             vim.api.nvim_buf_set_extmark(0, self.ns_id, cursor[1] + idx - 2, 0, extmark)
         end
     end
     M.CaptureText = lines
+end
+
+function M.setup(config)
+    vim.g.model_cmp_virtualtext_auto_trigger = config.virtualtext.enable
+    M.virt_text_style = config.virtualtext.style
+    vim.api.nvim_set_hl(0, "CustomVirttextHighlight", M.virt_text_style)
 end
 
 ------------------------------------------------------------------------------
