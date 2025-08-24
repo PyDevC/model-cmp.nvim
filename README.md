@@ -2,6 +2,8 @@
 
 AI autocomplete plugin for neovim
 
+**Warning:** things are pretty unstable right now since the newapi.
+
 ## How to launch the server
 
 launch the llama-server on http://127.0.0.1:8080
