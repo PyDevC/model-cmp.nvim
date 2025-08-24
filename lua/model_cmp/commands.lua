@@ -13,7 +13,6 @@ function M.create_autocmds(group)
                 if file == "" or file:find 'oil:///' then
                     return
                 end
-                llama.text_changed()
             end
         })
 
