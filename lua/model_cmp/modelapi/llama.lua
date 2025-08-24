@@ -1,27 +1,25 @@
-local curl = require("model_cmp.modelapi.curl")
 local context = require("model_cmp.context")
 local systemprompt = require("model_cmp.modelapi.prompt")
-local virtualtext = require("model_cmp.virtualtext")
-local utils = require("model_cmp.utils")
+local apiconfig = require("model_cmp.modelapi.apiconfig")
 
 local M = {}
 
 vim.b.request_sent = false
 
-local get_server_url = function() -- get server url from the user or from the config
-    return "http://127.0.0.1:8080/v1/chat/completions"
+local generate_url = function(custom_url)
+    local url = custom_url.url .. ":" .. custom_url.port .. "/v1/chat/completions"
+    return url
 end
 
-function M.check_server_running()
-end
-
-function M.send_request()
+function M.generate_request()
+    local bufnr = context.ContextEngine.bufnr
     local prompt = context.generate_context_text()
     local lang = context.ContextEngine:get_currlang()
     local complete_prompt = "# language: " .. lang .. prompt
 
     local few_shots = systemprompt.complete_few_shots
 
+    local custom = apiconfig.default()
     local messages = {}
     table.insert(messages, systemprompt.default)
     for _, msg in ipairs(few_shots) do
@@ -32,7 +30,7 @@ function M.send_request()
     local request = {
         "-s",
         "-X", "POST",
-        get_server_url(),
+        generate_url(),
         "-H", "Content-Type: application/json",
         "-d",
         vim.fn.json_encode({
@@ -44,27 +42,7 @@ function M.send_request()
             max_token = 50
         }),
     }
-    vim.b.request_sent = true
-    curl.send(request,
-        function(response)
-            vim.schedule(function()
-                local text = utils.decode_response(response)
-                virtualtext.VirtualText:update_preview(text)
-                vim.b.request_sent = false
-            end)
-        end
-    )
-end
-
---- TEMPORARY ACTIONS
-
-
-function M.text_changed()
-    if vim.b.request_sent then
-        return
-    end
-    virtualtext.action.clear_preview()
-    M.send_request()
+    return bufnr, request
 end
 
 return M
