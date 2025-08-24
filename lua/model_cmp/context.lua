@@ -36,7 +36,6 @@ M.ContextEngine = {
 }
 
 function M.ContextEngine:get_ctx()
-    print(M.ContextEngine.bufnr)
     self.cursor = get_cursor()
     self.ctx.before = get_context_before(self.cursor[1])
     self.ctx.after = get_context_after(self.cursor[1])

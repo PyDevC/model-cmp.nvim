@@ -2,11 +2,11 @@
 
 AI autocomplete plugin for neovim
 
-**Warning:** things are pretty unstable right now since the newapi.
-
 ## How to launch the server
 
-launch the llama-server on http://127.0.0.1:8080
+```bash
+llama-server --no-mmap -hf bartowski/Llama-3.2-3B-Instruct-GGUF:Q8_0
+```
 
 ## Installation
 
@@ -14,20 +14,30 @@ launch the llama-server on http://127.0.0.1:8080
 
 ```lua
 return {
-    "PyDevC/model-cmp.nvim",
-    config = function ()
-        require("model_cmp").setup()
-    end
+  "PyDevC/model-cmp.nvim",
+  config = function()
+    require("model_cmp").setup({
+      delay = 1,
+
+      api = {
+        custom_url = {
+          url = "http://127.0.0.1",
+          port = "8080"
+        }
+      },
+
+      virtualtext = {
+        enable = false,
+        type = "inline",
+
+        style = { -- This is just a highlight group
+          fg = "#b53a3a",
+          italic = false,
+          bold = false
+        }
+
+      },
+    })
+  end,
 }
 ```
-
-## What technique do we use?
-
-We actually use few shot prompting with self experimentation
-
-## Current Limitations
-
-- limited to the capabilities of the underlying LLM model.
-- No configurations
-- does not work well with markdown
-- Output cpature does not work properly
