@@ -14,6 +14,7 @@ function M.setup(config)
 
     commands.create_autocmds(model_cmp_grp)
     commands.create_usercmds()
+
     virtualtext.setup(config)
     api.setup(config)
 end

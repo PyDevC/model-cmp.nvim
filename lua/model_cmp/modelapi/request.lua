@@ -3,7 +3,7 @@ local Job = require("plenary.job")
 local M = {}
 
 
-function M.send(bufnr, request_args, callback)
+function M.send(request_args, callback)
     local result = {}
     local job = Job:new({
         command = "curl",

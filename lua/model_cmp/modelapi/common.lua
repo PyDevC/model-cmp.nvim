@@ -82,10 +82,10 @@ function M.send_request()
         end
     end
 
-    if request ~= nil then
+    if request == nil then
         return
     end
-    if not check_already_requested(bufnr) then
+    if check_already_requested(bufnr) then
         return
     end
 

@@ -30,7 +30,7 @@ function M.generate_request()
     local request = {
         "-s",
         "-X", "POST",
-        generate_url(),
+        generate_url(custom.custom_url),
         "-H", "Content-Type: application/json",
         "-d",
         vim.fn.json_encode({

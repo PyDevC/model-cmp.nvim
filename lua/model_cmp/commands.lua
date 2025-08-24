@@ -1,4 +1,4 @@
-local llama = require("model_cmp.modelapi.llama")
+local api = require("model_cmp.modelapi.common")
 local virtualtext = require("model_cmp.virtualtext")
 
 local M = {}
@@ -13,6 +13,7 @@ function M.create_autocmds(group)
                 if file == "" or file:find 'oil:///' then
                     return
                 end
+                api.send_request()
             end
         })
 
