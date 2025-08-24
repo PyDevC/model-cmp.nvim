@@ -8,13 +8,13 @@ end
 local function get_context_before(currentline)
     local start = 0
     local stop = currentline - 1
-    return vim.api.nvim_buf_get_lines(M.ContextEngine.bufnr, start, stop, false)
+    return vim.api.nvim_buf_get_lines(0, start, stop, false)
 end
 
 local function get_context_after(currentline)
-    local start = currentline + 1
+    local start = currentline
     local stop = -1
-    return vim.api.nvim_buf_get_lines(M.ContextEngine.bufnr, start, stop, false)
+    return vim.api.nvim_buf_get_lines(0, start, stop, false)
 end
 
 ---@class ModelCmp.ContextEngine
@@ -24,7 +24,7 @@ end
 ---@field ctx table<string, string[]> -- context
 ---@field currlang string -- current language eg: python, c, cpp, markdown
 M.ContextEngine = {
-    bufnr = 0,
+    bufnr = vim.api.nvim_get_current_buf(),
     id = 0, -- Need to think how to manipulate this this is imp to put the right virtual text for right context
     cursor = { 0, 0 },
     ctx = {
@@ -36,10 +36,11 @@ M.ContextEngine = {
 }
 
 function M.ContextEngine:get_ctx()
+    print(M.ContextEngine.bufnr)
     self.cursor = get_cursor()
     self.ctx.before = get_context_before(self.cursor[1])
     self.ctx.after = get_context_after(self.cursor[1])
-    self.ctx.current = vim.api.nvim_buf_get_lines(M.ContextEngine.bufnr, self.cursor[1], self.cursor[1] + 1, false)
+    self.ctx.current = vim.api.nvim_buf_get_lines(0, self.cursor[1] - 1, self.cursor[1] + 1, false)
     if not self.ctx.current then
         self.ctx.current = { "" }
     end
@@ -72,7 +73,11 @@ function M.generate_context_text()
 
     local line = M.ContextEngine.ctx.current[1]
     local col = M.ContextEngine.cursor[2]
-    lines = lines .. line:sub(1, col) .. "<missing>" .. line:sub(col + 1)
+    if line == nil then
+        line = lines .. "\n<missing>\n"
+    else
+        lines = lines .. line:sub(1, col) .. "<missing>" .. line:sub(col + 1)
+    end
 
     -- after
     for idx, line in ipairs(M.ContextEngine.ctx.after) do
