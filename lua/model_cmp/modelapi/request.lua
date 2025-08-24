@@ -2,9 +2,8 @@ local Job = require("plenary.job")
 
 local M = {}
 
-M.requests = {} -- This can store pending jobs or request data
 
-function M.send(request_args, callback)
+function M.send(bufnr, request_args, callback)
     local result = {}
     local job = Job:new({
         command = "curl",
@@ -20,7 +19,6 @@ function M.send(request_args, callback)
         end,
     })
     job:start()
-    table.insert(M.requests, job) -- Optional: keep track of active jobs
 end
 
 return M
