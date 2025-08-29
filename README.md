@@ -2,6 +2,10 @@
 
 AI autocomplete plugin for neovim
 
+support me!!! it is difficult to develop open source while searching for jobs. scan and support
+![IMG-20250829-WA0012](https://github.com/user-attachments/assets/e86526b6-6819-4ae5-a3b7-6698af3f03ee)
+
+
 ## How to launch the server
 
 ```bash
