@@ -21,6 +21,11 @@ function M.create_autocmds(group)
         {
             group = group,
             callback = function(event)
+                local file = event["file"]
+                -- also Check for buffer editing in oil.nvim
+                if file == "" or file:find 'oil:///' then
+                    return
+                end
                 virtualtext.action.clear_preview()
             end
         })

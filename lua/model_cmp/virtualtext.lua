@@ -17,15 +17,43 @@ M.VirtualText = {
     ext_ids = {},
 }
 
+local function remove_empty_lines()
+    local start_line = vim.b.start_line
+    local count = vim.b.count
+    if start_line and count and count > 0 then
+        vim.api.nvim_buf_set_lines(0, start_line - 1, start_line + count, false, {})
+        vim.b.start_line = nil
+        vim.b.count = nil
+    end
+    vim.api.nvim_win_set_cursor(0,vim.b.cursor)
+end
+
 function M.VirtualText:clear_preview(ext_ids_arg)
+    if vim.b.start_line == nil  then
+        return
+    end
     local ext_ids = ext_ids_arg or self.ext_ids
     for ext_id in pairs(ext_ids) do
         vim.api.nvim_buf_del_extmark(0, self.ns_id, ext_id)
     end
+    remove_empty_lines()
+end
+
+local function insert_empty_lines(current_line, no_line)
+    local lines = {}
+    for i = 1, no_line do
+        table.insert(lines, "")
+    end
+    vim.b.start_line = current_line
+    vim.b.count = no_line
+    vim.api.nvim_buf_set_lines(0, current_line - 1, current_line - 1, false, lines)
 end
 
 function M.VirtualText:update_preview(text)
-    if text == nil then
+    if vim.b.count ~= nil or vim.b.start_line ~= nil then
+        return
+    end
+    if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil then
         return
     end
 
@@ -33,27 +61,24 @@ function M.VirtualText:update_preview(text)
         return
     end
     local cursor = context.ContextEngine.cursor
+    vim.b.cursor = cursor
 
     local lines = {}
     for line in text:gmatch("[^\r\n]+") do
         table.insert(lines, line)
     end
 
+    insert_empty_lines(cursor[1], #lines)
     local max_line = vim.api.nvim_buf_line_count(0) - cursor[1] + 1
     local extmark = {}
     for idx, line in ipairs(lines) do
-        if not line:find "```" then
-            if idx == max_line then
-                return
-            end
-            table.insert(self.ext_ids, idx)
-            extmark = {
-                id = idx,
-                virt_text = { { line, "CustomVirttextHighlight" } },
-                right_gravity = true,
-            }
-            vim.api.nvim_buf_set_extmark(0, self.ns_id, cursor[1] + idx - 2, 0, extmark)
-        end
+        table.insert(self.ext_ids, idx)
+        extmark = {
+            id = idx,
+            virt_text = { { line, "CustomVirttextHighlight" } },
+            right_gravity = true,
+        }
+        vim.api.nvim_buf_set_extmark(0, self.ns_id, cursor[1] + idx - 2, 0, extmark)
     end
     M.CaptureText = lines
 end
