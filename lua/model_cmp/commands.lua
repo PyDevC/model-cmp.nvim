@@ -35,12 +35,14 @@ end
 local function modelcmp_start()
     vim.api.nvim_create_user_command('ModelCmpStart', function()
         -- api.start()
+        logger.debugging("Started api")
     end, {})
 end
 
 local function modelcmp_stop()
     vim.api.nvim_create_user_command('ModelCmpStop', function()
         -- api.stop()
+        logger.debugging("Stopped api")
     end, {})
 end
 

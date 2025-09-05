@@ -12,6 +12,9 @@ M.Logs = {}
 
 ---@param log LogInstance
 local function add_log(log)
+    if log.message == "" then
+        return
+    end
     for k, v in pairs(vim.log.levels) do
         if v == log.type then
             log.type = k

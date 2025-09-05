@@ -2,6 +2,7 @@ local req = require("model_cmp.modelapi.request")
 local virtualtext = require("model_cmp.virtualtext")
 local utils = require("model_cmp.utils")
 local apiconfig = require("model_cmp.modelapi.apiconfig")
+local logger = require("model_cmp.logger")
 
 -- server channels
 local llama = require("model_cmp.modelapi.llama")
@@ -93,6 +94,7 @@ function M.send_request()
     req.send(request,
         function(response)
             vim.schedule(function()
+                logger.trace(response)
                 local text = utils.decode_response(response)
                 virtualtext.VirtualText:update_preview(text)
                 remove_request(index)
@@ -104,6 +106,11 @@ end
 function M.setup(config)
     local api = config.api
     M.apikeys = api.apikeys
+
+    for type, keys in pairs(M.apikeys) do
+        keys = apiconfig.get_env_keys(type)
+    end
+
     M.custom_url = api.custom_url
     check_available()
 end
