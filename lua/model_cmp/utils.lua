@@ -10,4 +10,7 @@ function M.decode_response(response)
     return response_table.choices[1].message.content
 end
 
+function M.trim_codeblock_response(lines)
+end
+
 return M

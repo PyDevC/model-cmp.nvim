@@ -58,7 +58,7 @@ end
 
 -- we will check if there is a request already made for the given buffer
 local function check_already_requested(bufnr)
-    for buffer in pairs(M.requests) do
+    for _,buffer in pairs(M.requests) do
         if bufnr == buffer then
             return true
         end
@@ -82,20 +82,20 @@ function M.send_request()
         end
     end
 
-    if request ~= nil then
+    if request == nil then
         return
     end
-    if not check_already_requested(bufnr) then
+    if check_already_requested(bufnr) then
         return
     end
 
-    add_request(bufnr)
+    local index = add_request(bufnr)
     req.send(request,
         function(response)
             vim.schedule(function()
                 local text = utils.decode_response(response)
                 virtualtext.VirtualText:update_preview(text)
-                remove_request(bufnr)
+                remove_request(index)
             end)
         end
     )

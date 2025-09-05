@@ -1,7 +1,7 @@
 local commands = require("model_cmp.commands")
 local mainconfig = require("model_cmp.config")
 local virtualtext = require("model_cmp.virtualtext")
-local modelapi = require("model_cmp.modelapi.managekey")
+local api = require("model_cmp.modelapi.common")
 
 local M = {}
 
@@ -14,7 +14,9 @@ function M.setup(config)
 
     commands.create_autocmds(model_cmp_grp)
     commands.create_usercmds()
+
     virtualtext.setup(config)
+    api.setup(config)
 end
 
 return M

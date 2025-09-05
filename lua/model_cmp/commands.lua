@@ -1,4 +1,4 @@
-local llama = require("model_cmp.modelapi.llama")
+local api = require("model_cmp.modelapi.common")
 local virtualtext = require("model_cmp.virtualtext")
 
 local M = {}
@@ -13,7 +13,7 @@ function M.create_autocmds(group)
                 if file == "" or file:find 'oil:///' then
                     return
                 end
-                llama.text_changed()
+                api.send_request()
             end
         })
 
@@ -21,6 +21,11 @@ function M.create_autocmds(group)
         {
             group = group,
             callback = function(event)
+                local file = event["file"]
+                -- also Check for buffer editing in oil.nvim
+                if file == "" or file:find 'oil:///' then
+                    return
+                end
                 virtualtext.action.clear_preview()
             end
         })

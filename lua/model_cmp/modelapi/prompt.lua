@@ -83,4 +83,17 @@ Instructions:
 ]]
 }
 
+-- After this we are going to collect and send new data
+M.closecall_suggestions = {
+    role = "user",
+    content = [[You almost got the right answer, try again with a different but similar result,
+]]
+}
+
+M.wrong_suggestion = {
+    role = "user",
+    content = [[You predicted wrong, try again with a completly new suggestion but with this code
+]]
+}
+
 return M

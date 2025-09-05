@@ -15,7 +15,7 @@ function M.generate_request()
     local bufnr = context.ContextEngine.bufnr
     local prompt = context.generate_context_text()
     local lang = context.ContextEngine:get_currlang()
-    local complete_prompt = "# language: " .. lang .. prompt
+    local complete_prompt = "# language: " .. lang .. "\n" .. prompt
 
     local few_shots = systemprompt.complete_few_shots
 
@@ -30,7 +30,7 @@ function M.generate_request()
     local request = {
         "-s",
         "-X", "POST",
-        generate_url(),
+        generate_url(custom.custom_url),
         "-H", "Content-Type: application/json",
         "-d",
         vim.fn.json_encode({
