@@ -1,5 +1,6 @@
 local api = require("model_cmp.modelapi.common")
 local virtualtext = require("model_cmp.virtualtext")
+local logger = require("model_cmp.logger")
 
 local M = {}
 
@@ -31,6 +32,33 @@ function M.create_autocmds(group)
         })
 end
 
+local function modelcmp_start()
+    vim.api.nvim_create_user_command('ModelCmpStart', function()
+        -- api.start()
+    end, {})
+end
+
+local function modelcmp_stop()
+    vim.api.nvim_create_user_command('ModelCmpStop', function()
+        -- api.stop()
+    end, {})
+end
+
+local function modelcmp_logs()
+    vim.api.nvim_create_user_command('ModelCmpLogs', function()
+        vim.cmd('tabnew')
+        local newbuf = vim.api.nvim_create_buf(false, true)
+        vim.api.nvim_buf_set_name(newbuf, "Model Cmp logs")
+        vim.api.nvim_set_current_buf(newbuf)
+        vim.api.nvim_buf_set_option(newbuf, 'bufhidden', 'wipe') -- Close buffer when window is closed
+        vim.api.nvim_buf_set_option(newbuf, 'buftype', 'nofile')  -- Not a file buffer
+        vim.api.nvim_buf_set_option(newbuf, 'swapfile', false)   -- No swap file
+        vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.Logs)
+        vim.api.nvim_buf_set_option(newbuf, 'modifiable', false) -- Make it read-only
+    end, {})
+end
+
+-- This is our main command
 function M.create_usercmds()
     vim.api.nvim_create_user_command('ModelCmp', function(args)
         local fargs = args.fargs
@@ -67,6 +95,10 @@ function M.create_usercmds()
             return { 'virtualtext', 'capture' }
         end,
     })
+
+    modelcmp_start()
+    modelcmp_stop()
+    modelcmp_logs()
 end
 
 return M
