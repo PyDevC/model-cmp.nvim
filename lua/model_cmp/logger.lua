@@ -5,14 +5,20 @@ local M = {}
 ---@field loglist table<LogInstance>
 
 ---@class LogInstance
----@field type vim.log.levels
+---@field type string | vim.log.levels
 ---@field message string
 
 M.Logs = {}
 
 ---@param log LogInstance
 local function add_log(log)
-    local strtype = string.format("[%s]", log.type)
+    for k, v in pairs(vim.log.levels) do
+        if v == log.type then
+            log.type = k
+        end
+    end
+
+    local strtype = string.format("[%s]: ", log.type)
     local modifiedlog = strtype .. log.message
     table.insert(M.Logs, modifiedlog)
 end

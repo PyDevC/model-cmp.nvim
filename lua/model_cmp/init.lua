@@ -2,6 +2,7 @@ local commands = require("model_cmp.commands")
 local mainconfig = require("model_cmp.config")
 local virtualtext = require("model_cmp.virtualtext")
 local api = require("model_cmp.modelapi.common")
+local logger = require("model_cmp.logger")
 
 local M = {}
 
@@ -17,6 +18,7 @@ function M.setup(config)
 
     virtualtext.setup(config)
     api.setup(config)
+    logger.trace("Setup Completed for model-cmp.nvim")
 end
 
 return M
