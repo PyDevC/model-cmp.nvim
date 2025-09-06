@@ -12,8 +12,17 @@ local M = {}
 local function get_apikeys()
     return {
         OPENAI_API_KEY = "",
-        CLAUDE_API_KEY = ""
+        CLAUDE_API_KEY = "",
+        GEMINI_API_KEY = ""
     }
+end
+
+function M.get_env_keys(type)
+    local apikey = os.getenv(type)
+    if not apikey or apikey == "" then
+        -- log that api key is not set
+    end
+    return apikey
 end
 
 ---@return ModelCmp.Modelapi.Config
