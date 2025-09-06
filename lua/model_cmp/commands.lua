@@ -6,21 +6,23 @@ local uv = vim.uv
 
 local M = {}
 
-function M.create_autocmds(group)
-    local timer = uv.new_timer()
-    timer:start(1000, 0, vim.schedule_wrap(function()
-    end))
+function M.setup(config)
+    M.delay = config.delay
+end
 
+function M.create_autocmds(group)
+    M.timer = uv.new_timer()
     vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI', 'TextChangedP' },
         {
             group = group,
             callback = function(event)
                 local file = event["file"]
                 -- also Check for buffer editing in oil.nvim
-                if file == "" or file:find 'oil:///' or timer:is_active() then
+                if file == "" or file:find 'oil:///' or M.timer:is_active() then
                     return
                 end
-                api.send_request(timer)
+                M.timer:start(M.delay, 0, function() end)
+                api.send_request()
             end
         })
 

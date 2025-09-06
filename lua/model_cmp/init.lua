@@ -13,6 +13,7 @@ function M.setup(config)
     local default_config = mainconfig.default()
     config = vim.tbl_deep_extend('force', default_config, config)
 
+    commands.setup(config)
     commands.create_autocmds(model_cmp_grp)
     commands.create_usercmds()
 
