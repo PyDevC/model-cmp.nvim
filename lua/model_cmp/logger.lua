@@ -35,17 +35,10 @@ local function log_template()
     return log
 end
 
-function M.save_logs(logdir)
-    logdir = logdir or vim.fn.stdpath('log')
-    local filepath = logdir .. "model_cmp.log"
-
-    local strlogs = ""
-
-    for k, v in ipairs(M.Logs) do
-        strlogs = strlogs .. v .. "\n"
-    end
-
-    vim.fn.writefile(strlogs, filepath, 'a')
+function M.save_logs()
+    local logdir = vim.fn.stdpath('log')
+    local filepath = logdir .. "/model_cmp.log"
+    vim.fn.writefile(M.Logs, filepath, 'a')
 end
 
 function M.info(message)

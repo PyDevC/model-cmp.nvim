@@ -38,6 +38,14 @@ function M.create_autocmds(group)
                 virtualtext.action.clear_preview()
             end
         })
+
+    vim.api.nvim_create_autocmd({ 'VimLeave' },
+        {
+            group = group,
+            callback = function()
+                logger.save_logs()
+            end
+        })
 end
 
 local function modelcmp_start()
