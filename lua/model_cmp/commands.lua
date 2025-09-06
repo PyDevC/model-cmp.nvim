@@ -2,19 +2,25 @@ local api = require("model_cmp.modelapi.common")
 local virtualtext = require("model_cmp.virtualtext")
 local logger = require("model_cmp.logger")
 
+local uv = vim.uv
+
 local M = {}
 
 function M.create_autocmds(group)
+    local timer = uv.new_timer()
+    timer:start(1000, 0, vim.schedule_wrap(function()
+    end))
+
     vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI', 'TextChangedP' },
         {
             group = group,
             callback = function(event)
                 local file = event["file"]
                 -- also Check for buffer editing in oil.nvim
-                if file == "" or file:find 'oil:///' then
+                if file == "" or file:find 'oil:///' or timer:is_active() then
                     return
                 end
-                api.send_request()
+                api.send_request(timer)
             end
         })
 
@@ -53,7 +59,7 @@ local function modelcmp_logs()
         vim.api.nvim_buf_set_name(newbuf, "Model Cmp logs")
         vim.api.nvim_set_current_buf(newbuf)
         vim.api.nvim_buf_set_option(newbuf, 'bufhidden', 'wipe') -- Close buffer when window is closed
-        vim.api.nvim_buf_set_option(newbuf, 'buftype', 'nofile')  -- Not a file buffer
+        vim.api.nvim_buf_set_option(newbuf, 'buftype', 'nofile') -- Not a file buffer
         vim.api.nvim_buf_set_option(newbuf, 'swapfile', false)   -- No swap file
         vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.Logs)
         vim.api.nvim_buf_set_option(newbuf, 'modifiable', false) -- Make it read-only

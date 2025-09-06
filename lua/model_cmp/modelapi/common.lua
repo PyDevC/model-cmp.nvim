@@ -67,7 +67,7 @@ local function check_already_requested(bufnr)
     return false
 end
 
-function M.send_request()
+function M.send_request(timer)
     local request, bufnr
 
     local server = vim.g.server
@@ -98,6 +98,8 @@ function M.send_request()
                 local text = utils.decode_response(response)
                 virtualtext.VirtualText:update_preview(text)
                 remove_request(index)
+                timer:stop()
+                timer:close()
             end)
         end
     )
