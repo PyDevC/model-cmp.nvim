@@ -26,6 +26,10 @@ local function add_log(log)
     table.insert(M.Logs, modifiedlog)
 end
 
+local function timestamp()
+    return "[TIMESTAMP]: " .. os.date()
+end
+
 ---@return LogInstance
 local function log_template()
     local log = {
@@ -38,6 +42,7 @@ end
 function M.save_logs()
     local logdir = vim.fn.stdpath('log')
     local filepath = logdir .. "/model_cmp.log"
+    vim.fn.writefile({timestamp()}, filepath, 'a')
     vim.fn.writefile(M.Logs, filepath, 'a')
 end
 
