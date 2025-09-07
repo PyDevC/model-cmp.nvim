@@ -1,6 +1,8 @@
 local api = require("model_cmp.modelapi.common")
-local virtualtext = require("model_cmp.virtualtext")
+local gemini = require("model_cmp.modelapi.gemini")
+local llama = require("model_cmp.modelapi.llama")
 local logger = require("model_cmp.logger")
+local virtualtext = require("model_cmp.virtualtext")
 
 local uv = vim.uv
 
@@ -49,10 +51,37 @@ function M.create_autocmds(group)
 end
 
 local function modelcmp_start()
-    vim.api.nvim_create_user_command('ModelCmpStart', function()
-        -- api.start()
-        logger.debugging("Started api")
-    end, {})
+    vim.api.nvim_create_user_command('ModelCmpStart', function(args)
+        local fargs = args.fargs
+        if fargs[2] == nil then
+            fargs[2] = "default"
+        end
+        local servers = {
+            local_llama = function(server_name) llama.start(server_name) end,
+            gemini = function(server_name) gemini.start(server_name) end
+        }
+
+        servers[fargs[1]](fargs[2])
+    end, {
+        nargs = '+',
+        complete = function(_, cmdline, _)
+            cmdline = cmdline or ''
+
+            if cmdline:find 'local_llama' then
+                return {}
+            end
+
+            if cmdline:find 'gemini' then
+                return {
+                    "gemini-1.5-flash",
+                    "gemini-2.0-flash",
+                    "gemini-2.5-pro",
+                }
+            end
+
+            return { 'local_llama', 'gemini' }
+        end,
+    })
 end
 
 local function modelcmp_stop()
