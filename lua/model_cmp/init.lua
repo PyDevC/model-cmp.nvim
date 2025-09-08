@@ -1,8 +1,8 @@
+local api = require("model_cmp.modelapi.common")
 local commands = require("model_cmp.commands")
+local logger = require("model_cmp.logger")
 local mainconfig = require("model_cmp.config")
 local virtualtext = require("model_cmp.virtualtext")
-local api = require("model_cmp.modelapi.common")
-local logger = require("model_cmp.logger")
 
 local M = {}
 

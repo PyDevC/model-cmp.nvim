@@ -9,7 +9,7 @@ local M = {}
 ---@return ModelCmp.Config
 function M.default()
     return {
-        dealy = 1000,
+        delay = 1000,
         api = apiconfig.default(),
 
         virtualtext = {
