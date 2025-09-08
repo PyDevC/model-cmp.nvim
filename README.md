@@ -47,6 +47,41 @@ you can setup api key in your ~/.bashrc or ~/.zshrc which I highly don't recomme
 }
 ```
 
+## Config
+
+```lua
+return {
+  "PyDevC/model-cmp.nvim",
+  config = function()
+    require("model_cmp").setup({
+      delay = 1000, -- 1 sec delay
+
+      api = {
+        apikeys = {
+            GEMINI_API_KEY = "<your-key>"
+        }
+        custom_url = {
+          url = "http://127.0.0.1",
+          port = "8080"
+        }
+      },
+
+      virtualtext = {
+        enable = false,
+        type = "inline",
+
+        style = { -- This is just a highlight group
+          fg = "#b53a3a",
+          italic = false,
+          bold = false
+        }
+
+      },
+    })
+  end,
+}
+```
+
 ## Support
 
 support me!!! it is difficult to develop open source while searching for jobs. scan and support
