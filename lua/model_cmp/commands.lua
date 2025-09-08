@@ -1,4 +1,5 @@
 local api = require("model_cmp.modelapi.common")
+local common = require("model_cmp.modelapi.common")
 local gemini = require("model_cmp.modelapi.gemini")
 local llama = require("model_cmp.modelapi.llama")
 local logger = require("model_cmp.logger")
@@ -86,7 +87,7 @@ end
 
 local function modelcmp_stop()
     vim.api.nvim_create_user_command('ModelCmpStop', function()
-        -- api.stop()
+        common.stop()
         logger.debugging("Stopped api")
     end, {})
 end

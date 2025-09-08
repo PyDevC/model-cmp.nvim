@@ -1,106 +1,83 @@
-local req = require("model_cmp.modelapi.request")
-local virtualtext = require("model_cmp.virtualtext")
-local utils = require("model_cmp.utils")
 local apiconfig = require("model_cmp.modelapi.apiconfig")
+local context = require("model_cmp.context")
 local logger = require("model_cmp.logger")
+local preprompt = require("model_cmp.modelapi.prompt")
+local req = require("model_cmp.modelapi.request")
+local utils = require("model_cmp.utils")
+local virtualtext = require("model_cmp.virtualtext")
 
--- server channels
+local gemini = require("model_cmp.modelapi.gemini")
 local llama = require("model_cmp.modelapi.llama")
 
 local M = {}
 
-vim.g.server = "url" -- llama is default available options are openai, claude
+vim.g.server = "local_llama"
 
--- 0 means not avaiable and 1 means avaiable
 local available_keys = {
-    OPENAI_API_KEY = 0,
-    CLAUDE_API_KEY = 0,
+    GEMINI_API_KEY = 0
 }
 
-local function servername_to_key()
-    local server = vim.g.server
-    if server == "openai" then
-        return "OPENAI_API_KEY"
-    elseif server == "claude" then
-        return "CLAUDE_API_KEY"
-    else
-        return
-    end
-end
-
-
---Check for availability for both apikeys and server urls
 local function check_available()
-    for keyname, key in ipairs(M.apikeys) do
-        if key ~= "" then
+    for keyname, key in pairs(apiconfig.default().apikeys) do
+        local envkey = apiconfig.get_env_keys(keyname)
+        if key ~= "" or envkey ~= "" then
             available_keys[keyname] = 1
         end
     end
+
     if M.custom_url ~= nil then
         if M.custom_url.url == "" or M.custom_url.port == "" then
             M.custom_url = { url = "http://127.0.0.1", port = "8080" }
-        end
-    else
-        M.custom_url = apiconfig.default().custom_url
-    end
-end
-
-M.requests = {} -- only store buffer id
-
-local function add_request(bufid)
-    local index = #M.requests + 1
-    table.insert(M.requests, bufid)
-    return index
-end
-
-local function remove_request(index)
-    table.remove(M.requests, index)
-end
-
--- we will check if there is a request already made for the given buffer
-local function check_already_requested(bufnr)
-    for _,buffer in pairs(M.requests) do
-        if bufnr == buffer then
-            return true
+        else
+            M.custom_url = apiconfig.default().custom_url
         end
     end
-    return false
 end
 
 function M.send_request()
-    local request, bufnr
+    local bufnr = context.ContextEngine.bufnr
+    local few_shots = preprompt.complete_few_shots
+    local request
 
     local server = vim.g.server
-    if server == "url" then
-        bufnr, request = llama.generate_request()
-    elseif server == "openai" then
-        if available_keys[servername_to_key()] then
-            -- Working on openai services
+    if vim.g.server == "" or vim.g.server == nil then
+        logger.error("NO server setup")
+        return
+    end
+    if server == "default" or server == "local_llama" then
+        request = llama.generate_request(few_shots)
+    elseif server == "gemini" then
+        if available_keys.GEMINI_API_KEY ~= 1 then
+            logger.error("GEMINI_API_KEY is not set")
+            return
         end
-    elseif server == "claude" then
-        if available_keys[servername_to_key()] then
-            -- Working on claude services
-        end
+        request = gemini.generate_request(few_shots)
     end
 
     if request == nil then
         return
     end
-    if check_already_requested(bufnr) then
-        return
-    end
 
-    local index = add_request(bufnr)
     req.send(request,
         function(response)
             vim.schedule(function()
-                logger.trace(response)
-                local text = utils.decode_response(response)
+                local text = ""
+                if vim.g.server == "gemini" then
+                    text = gemini.decode_response(response)
+                else
+                    text = utils.decode_response(response)
+                end
+                if text == nil or text == "" then
+                    return
+                end
                 virtualtext.VirtualText:update_preview(text)
-                remove_request(index)
             end)
         end
     )
+end
+
+function M.stop()
+    vim.g.server = ""
 end
 
 function M.setup(config)
