@@ -1,0 +1,63 @@
+model_cmp.txt
+model-cmp model_cmp model-cmp.nvim 
+--------------------------------------------------------------------------------
+CONTENTS                                                    *model-cmp-contents*
+
+  1. Config                                                   |model-cmp-config|
+  2. UserCommands                                            |mode-cmp-commands|
+  3. API                                                         |model-cmp-api|
+
+
+--------------------------------------------------------------------------------
+CONFIG                                                          model-cmp-config
+
+```lua
+return {
+  "PyDevC/model-cmp.nvim",
+  config = function()
+    require("model_cmp").setup({
+      delay = 1,
+
+      api = {
+        custom_url = {
+          url = "http://127.0.0.1",
+          port = "8080"
+        }
+      },
+
+      virtualtext = {
+        enable = false,
+        type = "inline",
+
+        style = { -- This is just a highlight group
+          fg = "#b53a3a",
+          italic = false,
+          bold = false
+        }
+
+      },
+    })
+  end,
+}
+```
+
+--------------------------------------------------------------------------------
+USERCOMMANDS                                                  model-cmp-commands
+
+ModelCmp
+    ModelCmp is main command for all actions
+    
+    virtualtext {enable, disable, toggle}
+        enables or disables virtualtext suggestions on screen
+
+    capture {all, first}
+        capture virtualtext lines
+
+ModelCmpStart
+    Start server reading
+
+ModelCmpStop
+    Stop server reading
+
+ModelCmpLogs
+    Look up current session Logs
