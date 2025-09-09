@@ -36,6 +36,7 @@ end
 
 function M.send_request()
     local bufnr = context.ContextEngine.bufnr
+    local ctx = context.generate_context_text()
     local few_shots = preprompt.complete_few_shots
     local request
 
@@ -45,13 +46,14 @@ function M.send_request()
         return
     end
     if server == "default" or server == "local_llama" then
-        request = llama.generate_request(few_shots)
+        request = llama.generate_request(few_shots, ctx)
     elseif server == "gemini" then
         if available_keys.GEMINI_API_KEY ~= 1 then
             logger.error("GEMINI_API_KEY is not set")
             return
         end
-        request = gemini.generate_request(few_shots)
+        local systemprompt = preprompt.default.content
+        request = gemini.generate_request(few_shots, systemprompt, ctx)
     end
 
     if request == nil then

@@ -50,8 +50,16 @@ local function transform_ctx_messages(ctx_messages)
     return new_chat
 end
 
-function M.generate_request(ctx_messages)
+function M.generate_request(ctx_messages, content, mainctx)
     local messages = transform_ctx_messages(ctx_messages)
+    local mainmsg = {
+        role = 'user',
+        parts = {
+            { text = mainctx },
+        },
+    }
+
+    table.insert(messages, mainmsg)
     local apikey = "x-goog-api-key: " .. apiconfig.get_env_keys("GEMINI_API_KEY")
     local request = {
         -- TODO: ask user to add model of their choice
@@ -61,6 +69,11 @@ function M.generate_request(ctx_messages)
         "-X", "POST",
         "-d",
         vim.fn.json_encode({
+            system_instruction = {
+                parts = {
+                    text = content
+                }
+            },
             contents = messages,
             generationConfig = {
                 temperature = 0.1,

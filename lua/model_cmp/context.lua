@@ -1,6 +1,7 @@
 local M = {}
 
 local function get_cursor()
+
     return vim.api.nvim_win_get_cursor(0)
 end
 

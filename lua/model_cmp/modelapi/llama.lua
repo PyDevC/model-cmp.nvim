@@ -11,7 +11,7 @@ function M.start(model_name)
     vim.g.server = ""
 end
 
-function M.generate_request(ctx_messages)
+function M.generate_request(ctx_messages, ctx)
     local custom = apiconfig.default()
     local request = {
         "-s",
