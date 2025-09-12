@@ -1,7 +1,7 @@
 local apiconfig = require("model_cmp.modelapi.apiconfig")
 local context = require("model_cmp.context")
 local logger = require("model_cmp.logger")
-local preprompt = require("model_cmp.modelapi.prompt")
+local prompter = require("model_cmp.modelapi.prompt")
 local req = require("model_cmp.modelapi.request")
 local utils = require("model_cmp.utils")
 local virtualtext = require("model_cmp.virtualtext")
@@ -11,7 +11,7 @@ local llama = require("model_cmp.modelapi.llama")
 
 local M = {}
 
-vim.g.server = "local_llama"
+vim.g.model_cmp_connection_server = nil
 
 local available_keys = {
     GEMINI_API_KEY = 0
@@ -35,25 +35,25 @@ local function check_available()
 end
 
 function M.send_request()
-    local bufnr = context.ContextEngine.bufnr
+    local currlang = context.ContextEngine.currlang
     local ctx = context.generate_context_text()
-    local few_shots = preprompt.complete_few_shots
+
+    local prompt = prompter.generate_prompt(currlang, ctx)
     local request
 
     local server = vim.g.server
-    if vim.g.server == "" or vim.g.server == nil then
+    if vim.g.model_cmp_connection_server == nil then
         logger.error("NO server setup")
         return
     end
-    if server == "default" or server == "local_llama" then
-        request = llama.generate_request(few_shots, ctx)
+    if server == "local_llama" then
+        request = llama.generate_request(prompt)
     elseif server == "gemini" then
         if available_keys.GEMINI_API_KEY ~= 1 then
             logger.error("GEMINI_API_KEY is not set")
             return
         end
-        local systemprompt = preprompt.default.content
-        request = gemini.generate_request(few_shots, systemprompt, ctx)
+        request = gemini.generate_request(prompt)
     end
 
     if request == nil then
@@ -63,8 +63,8 @@ function M.send_request()
     req.send(request,
         function(response)
             vim.schedule(function()
-                local text = ""
-                if vim.g.server == "gemini" then
+                local text = nil
+                if vim.g.model_cmp_connection_server == "gemini" then
                     text = gemini.decode_response(response)
                 else
                     text = utils.decode_response(response)
@@ -79,7 +79,7 @@ function M.send_request()
 end
 
 function M.stop()
-    vim.g.server = ""
+    vim.g.model_cmp_connection_server = nil
 end
 
 function M.setup(config)

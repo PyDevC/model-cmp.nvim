@@ -22,14 +22,15 @@ local function generate_url(model_name)
 end
 
 function M.start(model_name)
-    vim.g.server = "gemini"
+    vim.g.model_cmp_connection_server = "gemini"
 end
 
-local function transform_ctx_messages(ctx_messages)
-    -- Transforming few shot messages
+---@param prompt Prompt
+local function transform_fewshots(prompt)
     local new_chat = {}
-    for _, msg in ipairs(ctx_messages) do
+    for _, msg in ipairs(prompt.fewshots) do
         local gemini_message = {}
+
         if msg.role == 'user' then
             gemini_message = {
                 role = 'user',
@@ -45,17 +46,19 @@ local function transform_ctx_messages(ctx_messages)
                 },
             }
         end
+
         table.insert(new_chat, gemini_message)
     end
     return new_chat
 end
 
-function M.generate_request(ctx_messages, content, mainctx)
-    local messages = transform_ctx_messages(ctx_messages)
+---@param prompt Prompt
+function M.generate_request(prompt)
+    local messages = transform_fewshots(prompt)
     local mainmsg = {
         role = 'user',
         parts = {
-            { text = mainctx },
+            { text = prompt.context.content },
         },
     }
 
@@ -71,7 +74,7 @@ function M.generate_request(ctx_messages, content, mainctx)
         vim.fn.json_encode({
             system_instruction = {
                 parts = {
-                    text = content
+                    text = prompt.systemrole.content
                 }
             },
             contents = messages,

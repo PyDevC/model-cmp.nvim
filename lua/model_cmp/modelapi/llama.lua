@@ -8,11 +8,23 @@ local generate_url = function(custom_url)
 end
 
 function M.start(model_name)
-    vim.g.server = ""
+    vim.g.model_cmp_connection_server = "local_llama"
 end
 
-function M.generate_request(ctx_messages, ctx)
+---@param prompt Prompt
+function M.generate_request(prompt)
     local custom = apiconfig.default()
+
+    local messages = prompt.systemrole
+    table.insert(messages, prompt.fewshots)
+    local context = {
+        role = 'user',
+        parts = {
+            { text = prompt.context.content },
+        },
+    }
+    table.insert(messages, context)
+
     local request = {
         "-s",
         "-X", "POST",
@@ -21,7 +33,7 @@ function M.generate_request(ctx_messages, ctx)
         "-d",
         vim.fn.json_encode({
             model = "llama",
-            messages = ctx_messages,
+            messages = messages,
             n_predict = 128,
             temperature = 0.1,
             stop = { "</s>" },

@@ -19,7 +19,9 @@ local function fewshot_lang_parser(language)
     return { { role = "user", content = "nothing" } }
 end
 
+---@param language string
 ---@param ctx table<string>
+---@return Singlefewshot
 local function generate_context_shot(language, ctx)
     local langprompt = "#language: " .. language
     return {
@@ -29,14 +31,14 @@ local function generate_context_shot(language, ctx)
 end
 
 ---@class Singlefewshot
----@field role string<"user" | "assistant" | "model">
+---@field role string<"user" | "assistant" | "model" | "system">
 ---@field content string
 
 ---@class Prompt
----@field systemrole table<"system" | any, string>
+---@field systemrole Singlefewshot
 ---@field fewshots table<Singlefewshot>
 ---@field language string
----@field context any
+---@field context Singlefewshot
 
 ---@param ctx any
 ---@return Prompt
