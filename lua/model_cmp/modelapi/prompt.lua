@@ -1,99 +1,64 @@
-local M = {}
-
-M.complete_few_shots = {
-    {
-        role = "user",
-        content = [[# language: lua
-<code>
-local ghosttext = require("model_cmp.ghosttext")
 local utils = require("model_cmp.utils")
 
 local M = {}
 
-vim.b.requ<missing>
+M.default_systemrole = {
+    role = "system",
+    content = [[Act as GitHub Copilot. Complete the code where the <missing> token is.
+Follow the instructions:
+- Output only the current line after replacing the <missing> tag.
+- No explanations, no comments, no full files generations allowed.
+- Max code generation is 5 lines.
+- Match the language and indentation.
+]]
+}
 
-local get_server_url = function() -- get server url from the user or from the config
-    return "http://127.0.0.1:8080/v1/chat/completions"
-end
-</code>]]
-    },
-    {
-        role = "assistant",
-        content = [[vim.b.request_sent = false]]
-    },
-    {
-        role = "user",
-        content = [[# language: lua
-<code>
-function M.get_trigger_characters()
-    return { '@', '.', '(', '[', ':', ' ' }
+---@param language string
+local function fewshot_lang_parser(language)
+    -- need to add path for the language context file
+    return { { role = "user", content = "nothing" } }
 end
 
-function M.get_capabilities()
+---@param ctx table<string>
+local function generate_context_shot(language, ctx)
+    local langprompt = "#language: " .. language
     return {
-        completion<missing>
-            triggerCharacters = M.get_trigger_characters(),
-        },
+        role = "user",
+        content = langprompt .. "\n" .. ctx
     }
 end
-</code>
-]]
-    },
-    {
-        role = "assistant",
-        content = [[        completionProvider = {]]
-    },
-    {
-        role = "user",
-        content = [[# language: Python
-<code>
-from transformers.agents import (
-    ReactCodeAgent,
-    ReactJsonAgent,
-    HfApiEngine,
-    ManagedAgent,
-)
-from transformers.agents.search import DuckDuckGoSearchTool
 
-llm_engine = <missing>
+---@class Singlefewshot
+---@field role string<"user" | "assistant" | "model">
+---@field content string
 
-web_agent = ReactJsonAgent(
-    tools=[DuckDuckGoSearchTool(), visit_webpage],
-    llm_engine=llm_engine,
-    max_iterations=10,
-)
-</code>
-]]
-    },
-    {
-        role = "assistant",
-        content = [[llm_engine = HfApiEngine(model)]]
-    },
-}
+---@class Prompt
+---@field systemrole table<"system" | any, string>
+---@field fewshots table<Singlefewshot>
+---@field language string
+---@field context any
 
-M.default = {
-    role = "user",
-    content = [[Act as GitHub Copilot. Complete the code where the <missing> token is.
+---@param ctx any
+---@return Prompt
+function M.default_prompt(ctx)
+    return {
+        systemrole = M.default_systemrole,
+        fewshots = M.default_fewshots,
+        language = "text",
+        context = ctx
+    }
+end
 
-Instructions:
-- Output only the code that replaces <missing>.
-- No explanations, no comments, no full file.
-- Limit to ≤ 2 lines of code.
-- Match language and indentation.
-]]
-}
-
--- After this we are going to collect and send new data
-M.closecall_suggestions = {
-    role = "user",
-    content = [[You almost got the right answer, try again with a different but similar result,
-]]
-}
-
-M.wrong_suggestion = {
-    role = "user",
-    content = [[You predicted wrong, try again with a completly new suggestion but with this code
-]]
-}
+function M.generate_prompt(language, ctx)
+    local prompt = M.default_prompt(ctx)
+    if language == "text" or language == "" then
+        return prompt
+    end
+    local fewshots = fewshot_lang_parser(language)
+    prompt.fewshots = fewshots
+    prompt.language = language
+    prompt.context = generate_context_shot(language, ctx)
+    return prompt
+end
 
 return M
