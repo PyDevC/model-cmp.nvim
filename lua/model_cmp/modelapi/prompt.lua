@@ -15,19 +15,9 @@ Follow the instructions:
 
 ---@param language string
 local function fewshot_lang_parser(language)
-    -- need to add path for the language context file
-    if language == "text" then
-        return {
-            {
-                role = "user",
-                content = "nothing"
-            },
-            {
-                role = "assistant",
-                content = "ok nothing"
-            }
-        }
-    end
+    local datadir = vim.fn.stdpath('data') .. "/lazy/model-cmp.nvim/data/"
+    local file = vim.fn.readfile(datadir .. language .. ".txt")
+    return utils.parse_messages(file)
 end
 
 ---@param language string
@@ -56,7 +46,7 @@ end
 function M.default_prompt(ctx)
     return {
         systemrole = M.default_systemrole,
-        fewshots = fewshot_lang_parser("text"),
+        fewshots = nil,
         language = "text",
         context = ctx
     }

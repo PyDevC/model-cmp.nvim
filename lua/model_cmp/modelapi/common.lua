@@ -38,7 +38,7 @@ function M.send_request()
     local currlang = context.ContextEngine.currlang
     local ctx = context.generate_context_text()
 
-    local prompt = prompter.generate_prompt("text", ctx)
+    local prompt = prompter.generate_prompt(currlang, ctx)
     local request
 
     local server = vim.g.model_cmp_connection_server

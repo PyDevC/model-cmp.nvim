@@ -10,4 +10,22 @@ function M.decode_response(response)
     return response_table.choices[1].message.content
 end
 
+function M.parse_messages(input)
+    local str_input = ""
+    for _, k in ipairs(input) do
+        str_input = str_input .. k .. '\n'
+    end
+
+    local messages = {}
+    for role, code in str_input:gmatch("@role:%s*(%w+)%s*@content:%s*<code>(.-)</code>") do
+        code = code:gsub("^%s+", ""):gsub("%s+$", "")
+        table.insert(messages, {
+            role = role,
+            content = code
+        })
+    end
+
+    return messages
+end
+
 return M

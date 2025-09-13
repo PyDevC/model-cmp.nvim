@@ -16,8 +16,10 @@ function M.generate_request(prompt)
     local custom = apiconfig.default()
 
     local messages = { prompt.systemrole }
-    for _, k in ipairs(prompt.fewshots) do
-        table.insert(messages, k)
+    if prompt.language ~= "text" then
+        for _, k in ipairs(prompt.fewshots) do
+            table.insert(messages, k)
+        end
     end
     local context = {
         role = "user",

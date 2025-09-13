@@ -54,7 +54,12 @@ end
 
 ---@param prompt Prompt
 function M.generate_request(prompt)
-    local messages = transform_fewshots(prompt)
+    local messages
+    if prompt.language == "text" then
+        messages = {}
+    else
+        messages = transform_fewshots(prompt)
+    end
     local mainmsg = {
         role = 'user',
         parts = {
@@ -62,7 +67,7 @@ function M.generate_request(prompt)
         },
     }
 
-    table.insert(messages, mainmsg)
+    table.insert(messages, { mainmsg })
     local apikey = "x-goog-api-key: " .. apiconfig.get_env_keys("GEMINI_API_KEY")
     local request = {
         -- TODO: ask user to add model of their choice

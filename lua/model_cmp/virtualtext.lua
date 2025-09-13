@@ -25,11 +25,11 @@ local function remove_empty_lines()
         vim.b.start_line = nil
         vim.b.count = nil
     end
-    vim.api.nvim_win_set_cursor(0,vim.b.cursor)
+    vim.api.nvim_win_set_cursor(0, vim.b.cursor)
 end
 
 function M.VirtualText:clear_preview(ext_ids_arg)
-    if vim.b.start_line == nil  then
+    if vim.b.start_line == nil then
         return
     end
     local ext_ids = ext_ids_arg or self.ext_ids
@@ -56,11 +56,14 @@ function M.VirtualText:update_preview(text)
     if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil then
         return
     end
-
     if vim.api.nvim_get_mode().mode ~= "i" then
         return
     end
-    local cursor = context.ContextEngine.cursor
+
+    local cursor = vim.api.nvim_win_get_cursor(0) -- {line, col}
+    local current_line_num = cursor[1]
+    local current_line_text = vim.api.nvim_get_current_line()
+
     vim.b.cursor = cursor
 
     local lines = {}
@@ -68,18 +71,52 @@ function M.VirtualText:update_preview(text)
         table.insert(lines, line)
     end
 
-    insert_empty_lines(cursor[1], #lines)
-    local max_line = vim.api.nvim_buf_line_count(0) - cursor[1] + 1
-    local extmark = {}
-    for idx, line in ipairs(lines) do
-        table.insert(self.ext_ids, idx)
-        extmark = {
-            id = idx,
-            virt_text = { { line, "CustomVirttextHighlight" } },
-            right_gravity = true,
-        }
-        vim.api.nvim_buf_set_extmark(0, self.ns_id, cursor[1] + idx - 2, 0, extmark)
+    local ns_id = self.ns_id or vim.api.nvim_create_namespace("MyPluginVirtualText")
+    self.ns_id = ns_id
+    self.ext_ids = {}
+
+    local match_inline = false
+    if #lines > 0 then
+        local first_line = lines[1]
+        -- Check if current line ends with a prefix of the first virtual line
+        for i = #first_line, 1, -1 do
+            local prefix = first_line:sub(1, i)
+            if current_line_text:sub(- #prefix) == prefix then
+                match_inline = true
+                break
+            end
+        end
     end
+
+    local start_index = 1
+    if match_inline then
+        -- Put the first line as virtual text inline with current line
+        vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, -1, {
+            id = 1,
+            virt_text = { { lines[1], "CustomVirttextHighlight" } },
+            virt_text_pos = "eol",
+            right_gravity = true,
+        })
+        table.insert(self.ext_ids, 1)
+        start_index = 2
+    end
+
+    local num_remaining = #lines - (start_index - 1)
+    if num_remaining > 0 then
+        insert_empty_lines(current_line_num + 1, num_remaining)
+    end
+
+    for idx = start_index, #lines do
+        local line_text = lines[idx]
+        local extmark_id = idx
+        vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num + idx - 2, 0, {
+            id = extmark_id,
+            virt_text = { { line_text, "CustomVirttextHighlight" } },
+            right_gravity = true,
+        })
+        table.insert(self.ext_ids, extmark_id)
+    end
+
     M.CaptureText = lines
 end
 
