@@ -16,7 +16,18 @@ Follow the instructions:
 ---@param language string
 local function fewshot_lang_parser(language)
     -- need to add path for the language context file
-    return { { role = "user", content = "nothing" } }
+    if language == "text" then
+        return {
+            {
+                role = "user",
+                content = "nothing"
+            },
+            {
+                role = "assistant",
+                content = "ok nothing"
+            }
+        }
+    end
 end
 
 ---@param language string
@@ -45,7 +56,7 @@ end
 function M.default_prompt(ctx)
     return {
         systemrole = M.default_systemrole,
-        fewshots = M.default_fewshots,
+        fewshots = fewshot_lang_parser("text"),
         language = "text",
         context = ctx
     }
@@ -53,13 +64,13 @@ end
 
 function M.generate_prompt(language, ctx)
     local prompt = M.default_prompt(ctx)
+    prompt.context = generate_context_shot(language, ctx)
     if language == "text" or language == "" then
         return prompt
     end
     local fewshots = fewshot_lang_parser(language)
     prompt.fewshots = fewshots
     prompt.language = language
-    prompt.context = generate_context_shot(language, ctx)
     return prompt
 end
 

@@ -38,12 +38,12 @@ function M.send_request()
     local currlang = context.ContextEngine.currlang
     local ctx = context.generate_context_text()
 
-    local prompt = prompter.generate_prompt(currlang, ctx)
+    local prompt = prompter.generate_prompt("text", ctx)
     local request
 
-    local server = vim.g.server
-    if vim.g.model_cmp_connection_server == nil then
-        logger.error("NO server setup")
+    local server = vim.g.model_cmp_connection_server
+    if server == nil then
+        logger.trace("NO server setup")
         return
     end
     if server == "local_llama" then

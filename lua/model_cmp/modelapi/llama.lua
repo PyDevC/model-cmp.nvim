@@ -15,13 +15,13 @@ end
 function M.generate_request(prompt)
     local custom = apiconfig.default()
 
-    local messages = prompt.systemrole
-    table.insert(messages, prompt.fewshots)
+    local messages = { prompt.systemrole }
+    for _, k in ipairs(prompt.fewshots) do
+        table.insert(messages, k)
+    end
     local context = {
-        role = 'user',
-        parts = {
-            { text = prompt.context.content },
-        },
+        role = "user",
+        content = prompt.context.content,
     }
     table.insert(messages, context)
 
