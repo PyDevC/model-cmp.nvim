@@ -89,6 +89,7 @@ local function modelcmp_stop()
     vim.api.nvim_create_user_command('ModelCmpStop', function()
         common.stop()
         logger.debugging("Stopped api")
+        api.stop()
     end, {})
 end
 
@@ -103,6 +104,7 @@ local function modelcmp_logs()
         vim.api.nvim_buf_set_option(newbuf, 'swapfile', false)   -- No swap file
         vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.Logs)
         vim.api.nvim_buf_set_option(newbuf, 'modifiable', false) -- Make it read-only
+        -- Todo add logger
     end, {})
 end
 

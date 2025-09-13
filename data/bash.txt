@@ -1,0 +1,14 @@
+@role: user
+@content:
+<code>
+local utils = require("module.utils")
+local M = {}
+utils.pa<missing>
+return M
+</code>
+
+@role: assistant
+@content:
+<code>
+utils.parser
+</code>
