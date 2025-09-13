@@ -1,49 +1,80 @@
 @role: user
 @content:
 <code>
+fn add(a: i32, b: i32) -> i32 {
+    <missing>
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    a + b
 </code>
 
 @role: user
 @content:
 <code>
+fn is_even(n: i32) -> bool {
+    <missing>
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    n % 2 == 0
 </code>
 
 @role: user
 @content:
 <code>
+fn is_prime(n: i32) -> bool {
+    if n <= 1 {
+        return false;
+    }
+    for i in 2..=((n as f64).sqrt() as i32) {
+        if <missing> {
+            return false;
+        }
+    }
+    true
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+        if n % i == 0
 </code>
 
 @role: user
 @content:
 <code>
+fn factorial(n: u32) -> u32 {
+    if n == 0 {
+        return 1;
+    }
+    <missing>
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    n * factorial(n - 1)
 </code>
 
 @role: user
 @content:
 <code>
+fn reverse(s: &str) -> String {
+    <missing>
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    s.chars().rev().collect()
 </code>

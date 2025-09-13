@@ -1,49 +1,71 @@
 @role: user
 @content:
 <code>
+def add(a, b):
+    return <missing>
 </code>
 
 @role: assistant
 @content:
 <code>
+    return a + b
 </code>
 
 @role: user
 @content:
 <code>
+def is_even(n):
+    return <missing>
 </code>
 
 @role: assistant
 @content:
 <code>
+    return n % 2 == 0
 </code>
 
 @role: user
 @content:
 <code>
+def is_prime(n):
+    if n <= 1:
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if <missing>:
+            return False
+    return True
 </code>
 
 @role: assistant
 @content:
 <code>
+        if n % i == 0:
 </code>
 
 @role: user
 @content:
 <code>
+def factorial(n):
+    if n == 0:
+        return 1
+    return <missing>
 </code>
 
 @role: assistant
 @content:
 <code>
+    return n * factorial(n - 1)
 </code>
 
 @role: user
 @content:
 <code>
+def reverse(s):
+    return <missing>
 </code>
 
 @role: assistant
 @content:
 <code>
+    return s[::-1]
 </code>

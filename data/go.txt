@@ -1,49 +1,79 @@
 @role: user
 @content:
 <code>
+func Add(a int, b int) int {
+    return <missing>
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    return a + b
 </code>
 
 @role: user
 @content:
 <code>
+func IsEven(n int) bool {
+    return <missing>
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    return n%2 == 0
 </code>
 
 @role: user
 @content:
 <code>
+func Reverse(s string) string {
+    runes := []rune(s)
+    for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+        <missing>
+    }
+    return string(runes)
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+        runes[i], runes[j] = runes[j], runes[i]
 </code>
 
 @role: user
 @content:
 <code>
+func Factorial(n int) int {
+    if n == 0 {
+        return 1
+    }
+    return <missing>
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    return n * Factorial(n-1)
 </code>
 
 @role: user
 @content:
 <code>
+func Max(a, b int) int {
+    if a > b {
+        return <missing>
+    }
+    return b
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+        return a
 </code>

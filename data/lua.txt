@@ -1,49 +1,84 @@
 @role: user
 @content:
 <code>
+function add(a, b)
+    return <missing>
+end
 </code>
 
 @role: assistant
 @content:
 <code>
+    return a + b
 </code>
 
 @role: user
 @content:
 <code>
+function is_even(n)
+    return <missing>
+end
 </code>
 
 @role: assistant
 @content:
 <code>
+    return n % 2 == 0
 </code>
 
 @role: user
 @content:
 <code>
+function is_prime(n)
+    if n <= 1 then
+        return false
+    end
+    for i = 2, math.floor(math.sqrt(n)) do
+        if <missing> then
+            return false
+        end
+    end
+    return true
+end
 </code>
 
 @role: assistant
 @content:
 <code>
+        if n % i == 0 then
 </code>
 
 @role: user
 @content:
 <code>
+function factorial(n)
+    if n == 0 then
+        return 1
+    end
+    return <missing>
+end
 </code>
 
 @role: assistant
 @content:
 <code>
+    return n * factorial(n - 1)
 </code>
 
 @role: user
 @content:
 <code>
+function reverse(str)
+    local reversed = ""
+    for i = #str, 1, -1 do
+        <missing>
+    end
+    return reversed
+end
 </code>
 
 @role: assistant
 @content:
 <code>
+        reversed = reversed .. str:sub(i, i)
 </code>

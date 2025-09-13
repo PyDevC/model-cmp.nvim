@@ -1,49 +1,77 @@
 @role: user
 @content:
 <code>
+public int add(int a, int b) {
+    return <missing>;
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    return a + b;
 </code>
 
 @role: user
 @content:
 <code>
+public boolean isEven(int n) {
+    return <missing>;
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    return n % 2 == 0;
 </code>
 
 @role: user
 @content:
 <code>
+public boolean isPrime(int n) {
+    if (n <= 1) return false;
+    for (int i = 2; i * i <= n; i++) {
+        if (<missing>) return false;
+    }
+    return true;
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+        if (n % i == 0) return false;
 </code>
 
 @role: user
 @content:
 <code>
+public int factorial(int n) {
+    if (n == 0) {
+        return 1;
+    }
+    return <missing>;
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    return n * factorial(n - 1);
 </code>
 
 @role: user
 @content:
 <code>
+public String reverse(String str) {
+    StringBuilder sb = new StringBuilder(str);
+    return <missing>;
+}
 </code>
 
 @role: assistant
 @content:
 <code>
+    return sb.reverse().toString();
 </code>
