@@ -151,6 +151,7 @@ end
 
 function action.disable_auto_trigger()
     vim.g.model_cmp_virtualtext_auto_trigger = false
+    M.VirtualText:clear_preview()
 end
 
 function action.enable_auto_trigger()
@@ -160,6 +161,9 @@ end
 function action.toggle_auto_trigger()
     vim.g.model_cmp_virtualtext_auto_trigger = function()
         return not vim.b.model_cmp_virtualtext_auto_trigger
+    end
+    if not vim.g.model_cmp_virtualtext_auto_trigger then
+        M.VirtualText:clear_preview()
     end
 end
 
