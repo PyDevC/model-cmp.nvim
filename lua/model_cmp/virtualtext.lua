@@ -3,7 +3,7 @@ local context = require("model_cmp.context")
 local M = {}
 
 M.ns_id = vim.api.nvim_create_namespace("model_cmp.virtualtext")
-M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true }) -- we will this in future for virtual text themes
+M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true })
 
 M.CaptureText = {}
 
@@ -51,7 +51,7 @@ end
 
 function M.VirtualText:update_preview(text)
     if vim.b.count ~= nil or vim.b.start_line ~= nil then
-        return
+        self:clear_preview()
     end
     if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil then
         return
