@@ -13,6 +13,7 @@ function M.decode_response(response)
 
     if response_table.error ~= nil then
         logger.error("Something wrong with your api key")
+        return
     end
     return response_table.candidates[1].content.parts[1].text
 end
