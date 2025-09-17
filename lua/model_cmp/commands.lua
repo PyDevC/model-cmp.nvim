@@ -1,30 +1,33 @@
 local api = require("model_cmp.modelapi.common")
-local common = require("model_cmp.modelapi.common")
-local gemini = require("model_cmp.modelapi.gemini")
-local llama = require("model_cmp.modelapi.llama")
 local logger = require("model_cmp.logger")
-local virtualtext = require("model_cmp.virtualtext")
 
 local uv = vim.uv
 
 local M = {}
 
-function M.setup(config)
-    M.delay = config.delay
+---@return boolean Editspace
+local function check_editing_space(event)
+    local file = event["file"]
+    if file == "" then
+        return false
+    elseif file:find 'oil:///' then
+        return false
+    end
+
+    return true
 end
 
-function M.create_autocmds(group)
+local function create_autocmds(group)
     M.timer = uv.new_timer()
     vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI', 'TextChangedP' },
         {
             group = group,
             callback = function(event)
-                local file = event["file"]
-                -- also Check for buffer editing in oil.nvim
-                if file == "" or file:find 'oil:///' or M.timer:is_active() then
+                check_editing_space(event)
+                if M.timer:is_active() then
                     return
                 end
-                M.timer:start(M.delay, 0, function() end)
+                M.timer:start(1000, 0, function() end)
                 api.send_request()
             end
         })
@@ -33,12 +36,8 @@ function M.create_autocmds(group)
         {
             group = group,
             callback = function(event)
-                local file = event["file"]
-                -- also Check for buffer editing in oil.nvim
-                if file == "" or file:find 'oil:///' then
-                    return
-                end
-                virtualtext.action.clear_preview()
+                check_editing_space(event)
+                require("model_cmp.virtualtext").action.clear_preview()
             end
         })
 
@@ -51,81 +50,29 @@ function M.create_autocmds(group)
         })
 end
 
-local function modelcmp_start()
-    vim.api.nvim_create_user_command('ModelCmpStart', function(args)
-        local fargs = args.fargs
-        if fargs[2] == nil then
-            fargs[2] = "default"
-        end
-        local servers = {
-            local_llama = function(server_name) llama.start(server_name) end,
-            gemini = function(server_name) gemini.start(server_name) end
-        }
-
-        servers[fargs[1]](fargs[2])
-    end, {
-        nargs = '+',
-        complete = function(_, cmdline, _)
-            cmdline = cmdline or ''
-
-            if cmdline:find 'local_llama' then
-                return {}
-            end
-
-            if cmdline:find 'gemini' then
-                return {
-                    "gemini-1.5-flash",
-                    "gemini-2.0-flash",
-                    "gemini-2.5-pro",
-                }
-            end
-
-            return { 'local_llama', 'gemini' }
-        end,
-    })
-end
-
-local function modelcmp_stop()
-    vim.api.nvim_create_user_command('ModelCmpStop', function()
-        common.stop()
-        logger.debugging("Stopped api")
-        api.stop()
-    end, {})
-end
-
-local function modelcmp_logs()
-    vim.api.nvim_create_user_command('ModelCmpLogs', function()
-        vim.cmd('tabnew')
-        local newbuf = vim.api.nvim_create_buf(false, true)
-        vim.api.nvim_buf_set_name(newbuf, "Model Cmp logs")
-        vim.api.nvim_set_current_buf(newbuf)
-        vim.api.nvim_buf_set_option(newbuf, 'bufhidden', 'wipe') -- Close buffer when window is closed
-        vim.api.nvim_buf_set_option(newbuf, 'buftype', 'nofile') -- Not a file buffer
-        vim.api.nvim_buf_set_option(newbuf, 'swapfile', false)   -- No swap file
-        vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.Logs)
-        vim.api.nvim_buf_set_option(newbuf, 'modifiable', false) -- Make it read-only
-        -- Todo add logger
-    end, {})
-end
-
--- This is our main command
-function M.create_usercmds()
+local function create_usercmds()
     vim.api.nvim_create_user_command('ModelCmp', function(args)
-        local fargs = args.fargs
-        local actions = {}
+        args = args.fargs
+        if #args == 0 or args == nil then
+            return
+        end
+        local virtualtext = require("model_cmp.virtualtext")
 
-        -- VirtualText options
+        local actions = {}
         actions.virtualtext = {
-            enable = function() virtualtext.action.enable_auto_trigger() end,
-            disable = function() virtualtext.action.disable_auto_trigger() end,
-            toggle = function() virtualtext.action.toggle_auto_trigger() end
+            enable = function() vim.b.model_cmp_virtualtext_auto_trigger = true; end,
+            disable = function() vim.b.model_cmp_virtualtext_auto_trigger = true; end,
+            toggle = function() virtualtext.toggle_auto_trigger() end
+        }
+        actions.server = {
+            local_server = function() end,
+            gemini = function() end
         }
         actions.capture = {
             first = function() virtualtext.action.capturefirstline() end,
             all = function() virtualtext.action.capturealllines() end,
         }
-
-        actions[fargs[1]][fargs[2]]()
+        actions[args[1]][args[2]]()
     end, {
         nargs = '+',
         complete = function(_, cmdline, _)
@@ -141,14 +88,55 @@ function M.create_usercmds()
             if cmdline:find 'capture' then
                 return { 'first', 'all' }
             end
-
-            return { 'virtualtext', 'capture' }
+            return { 'virtualtext', 'capture', 'server' }
         end,
     })
 
-    modelcmp_start()
-    modelcmp_stop()
-    modelcmp_logs()
+    vim.api.nvim_create_user_command('ModelCmpStart', function(args)
+        local ok, autocmd = pcall(vim.api.nvim_get_autocmds, { group = "model_cmp_grp" })
+        if not ok then
+            M.setup()
+        end
+        args = args.fargs
+        local servers = {
+            local_llama = function() vim.g.model_cmp_connection_server = "local_llama" end,
+            gemini = function() vim.g.model_cmp_connection_server = "gemini" end
+        }
+        servers[args[1]]()
+    end, {
+        nargs = '+',
+        complete = function()
+            return {
+                'local_llama',
+                'gemini'
+            }
+        end
+    })
+
+    vim.api.nvim_create_user_command('ModelCmpStop', function(args)
+        if args.fargs[1] == "all" then
+            vim.api.nvim_del_augroup_by_name('model_cmp_grp')
+        end
+        vim.g.model_cmp_virtualtext_auto_trigger = ""
+    end, { nargs = "+" })
+
+    vim.api.nvim_create_user_command('ModelCmpLogs', function()
+        vim.cmd('tabnew')
+        local newbuf = vim.api.nvim_create_buf(false, true)
+        vim.api.nvim_buf_set_name(newbuf, "Model Cmp logs")
+        vim.api.nvim_set_current_buf(newbuf)
+        vim.api.nvim_buf_set_option(newbuf, 'bufhidden', 'wipe') -- Close buffer when window is closed
+        vim.api.nvim_buf_set_option(newbuf, 'buftype', 'nofile') -- Not a file buffer
+        vim.api.nvim_buf_set_option(newbuf, 'swapfile', false)   -- No swap file
+        vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.Logs)
+        vim.api.nvim_buf_set_option(newbuf, 'modifiable', false) -- Make it read-only
+    end, {})
+end
+
+function M.setup()
+    local autogrp = vim.api.nvim_create_augroup("model_cmp_grp", {})
+    create_autocmds(autogrp)
+    create_usercmds()
 end
 
 return M
