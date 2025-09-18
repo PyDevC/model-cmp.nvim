@@ -17,7 +17,7 @@ function M.default()
             blink = true
         },
         request_delay = 1000,
-        api = require("model_cmp.modelapi.apiconfig").default(),
+        api = require("model_cmp.modelapi.apiconfig").default,
         virtualtext = {
             enable = false,
             type = "inline",
@@ -41,6 +41,7 @@ function M.setup(opts)
     ---@type ModelCmp.Config
     options = vim.tbl_deep_extend("force", M.default(), opts)
     require("model_cmp.commands").setup()
+    require("model_cmp.modelapi.common").setup(opts)
     return options
 end
 

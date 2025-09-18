@@ -53,7 +53,7 @@ function M.VirtualText:update_preview(text)
     if vim.b.count ~= nil or vim.b.start_line ~= nil then
         self:clear_preview()
     end
-    if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil then
+    if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil or text == "" then
         return
     end
     if vim.api.nvim_get_mode().mode ~= "i" then
@@ -96,6 +96,7 @@ function M.VirtualText:update_preview(text)
             virt_text = { { lines[1], "CustomVirttextHighlight" } },
             virt_text_pos = "eol",
             right_gravity = true,
+            undo_restore = true,
         })
         table.insert(self.ext_ids, 1)
         start_index = 2
@@ -113,6 +114,7 @@ function M.VirtualText:update_preview(text)
             id = extmark_id,
             virt_text = { { line_text, "CustomVirttextHighlight" } },
             right_gravity = true,
+            undo_restore = true,
         })
         table.insert(self.ext_ids, extmark_id)
     end
@@ -124,6 +126,7 @@ function M.setup(config)
     vim.g.model_cmp_virtualtext_auto_trigger = config.virtualtext.enable
     M.virt_text_style = config.virtualtext.style
     vim.api.nvim_set_hl(0, "CustomVirttextHighlight", M.virt_text_style)
+    vim.api.nvim_set_decoration_provider(M.ns_id, {})
 end
 
 ------------------------------------------------------------------------------

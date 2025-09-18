@@ -7,31 +7,15 @@ local M = {}
 ---@class APIKeyHolder
 ---@field GEMINI_API_KEY string
 
----@return APIKeyHolder
-local function get_apikeys()
-    return {
+---@type ModelCmp.Modelapi.Config
+M.default = {
+    apikeys = {
         GEMINI_API_KEY = ""
+    },
+    custom_url = {
+        url = "http://127.0.0.1",
+        port = "8080"
     }
-end
-
-function M.get_env_keys(type)
-    local apikey = os.getenv(type)
-    if not apikey or apikey == "" then
-        return ""
-    end
-    return apikey
-end
-
----@return ModelCmp.Modelapi.Config
-function M.default()
-    local keys = get_apikeys()
-    return {
-        apikeys = keys,
-        custom_url = {
-            url = "http://127.0.0.1",
-            port = "8080"
-        }
-    }
-end
+}
 
 return M
