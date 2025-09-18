@@ -1,4 +1,7 @@
-local context = require("model_cmp.context")
+---@class ModelCmp.VitualText
+---@field aug_id integer augroup id
+---@field ns_id integer namespace id
+---@field ext_ids integer[] extmark ids
 
 local M = {}
 
@@ -7,10 +10,6 @@ M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true 
 
 M.CaptureText = {}
 
----@class ModelCmp.VitualText
----@field aug_id integer augroup id
----@field ns_id integer namespace id
----@field ext_ids integer[] extmark ids
 M.VirtualText = {
     aug_id = M.augroup,
     ns_id = M.ns_id,
@@ -28,17 +27,18 @@ local function remove_empty_lines()
     vim.api.nvim_win_set_cursor(0, vim.b.cursor)
 end
 
-function M.VirtualText:clear_preview(ext_ids_arg)
+function M.VirtualText:clear_preview()
     if vim.b.start_line == nil then
         return
     end
-    local ext_ids = ext_ids_arg or self.ext_ids
-    for ext_id in pairs(ext_ids) do
+    for ext_id in pairs(self.ext_ids) do
         vim.api.nvim_buf_del_extmark(0, self.ns_id, ext_id)
     end
     remove_empty_lines()
 end
 
+---@param current_line integer
+---@param no_line integer
 local function insert_empty_lines(current_line, no_line)
     local lines = {}
     for i = 1, no_line do
@@ -49,6 +49,7 @@ local function insert_empty_lines(current_line, no_line)
     vim.api.nvim_buf_set_lines(0, current_line - 1, current_line - 1, false, lines)
 end
 
+---@param text string
 function M.VirtualText:update_preview(text)
     if vim.b.count ~= nil or vim.b.start_line ~= nil then
         self:clear_preview()
@@ -170,8 +171,8 @@ function action.toggle_auto_trigger()
     end
 end
 
-function action.clear_preview(ext_ids_arg)
-    M.VirtualText:clear_preview(ext_ids_arg)
+function action.clear_preview()
+    M.VirtualText:clear_preview()
 end
 
 M.action = action
