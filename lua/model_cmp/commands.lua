@@ -17,6 +17,9 @@ local function check_editing_space(event)
     return true
 end
 
+---@alias Augroup integer
+
+---@param group Augroup
 local function create_autocmds(group)
     M.timer = uv.new_timer()
     vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI', 'TextChangedP' },
