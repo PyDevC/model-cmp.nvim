@@ -25,6 +25,7 @@ end
 
 ---@param text string
 function M.VirtualText:update_preview(text)
+    -- Checking all conditions before running update preview
     if #self.ext_ids > 0 then
         self:clear_preview()
     end
@@ -46,38 +47,12 @@ function M.VirtualText:update_preview(text)
         table.insert(lines, line)
     end
 
+    lines = { text }
+
     local ns_id = self.ns_id or vim.api.nvim_create_namespace("MyPluginVirtualText")
     self.ns_id = ns_id
-    self.ext_ids = {}
 
-    local match_inline = false
-    if #lines > 0 then
-        local first_line = lines[1]
-        -- Check if current line ends with a prefix of the first virtual line
-        for i = #first_line, 1, -1 do
-            local prefix = first_line:sub(1, i)
-            if current_line_text:sub(- #prefix) == prefix then
-                match_inline = true
-                break
-            end
-        end
-    end
-
-    local start_index = 1
-    if match_inline then
-        -- Put the first line as virtual text inline with current line
-        vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, -1, {
-            id = 1,
-            virt_text = { { lines[1], "CustomVirttextHighlight" } },
-            virt_text_pos = "eol",
-            right_gravity = true,
-            undo_restore = true,
-        })
-        table.insert(self.ext_ids, 1)
-        start_index = 2
-    end
-
-    for idx = start_index, #lines do
+    for idx = 1, #lines do
         local line_text = lines[idx]
         local extmark_id = idx
         vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num + idx - 2, 0, {

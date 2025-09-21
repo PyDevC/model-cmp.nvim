@@ -1,3 +1,6 @@
+---@diagnostic disable: undefined-field
+---@diagnostic disable: undefined-global
+
 local utils = require("model_cmp.utils")
 
 ---@type string
