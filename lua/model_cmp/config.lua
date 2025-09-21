@@ -41,6 +41,7 @@ function M.setup(opts)
     ---@type ModelCmp.Config
     options = vim.tbl_deep_extend("force", M.default(), opts)
     require("model_cmp.commands").setup()
+    require("model_cmp.virtualtext").setup()
     require("model_cmp.modelapi.common").setup(opts)
     return options
 end

@@ -1,3 +1,5 @@
+local config = require("model_cmp.config")
+
 ---@class ModelCmp.VitualText
 ---@field aug_id integer augroup id
 ---@field ns_id integer namespace id
@@ -90,11 +92,9 @@ function M.VirtualText:update_preview(text)
     M.CaptureText = lines
 end
 
-function M.setup(config)
+function M.setup()
     vim.g.model_cmp_virtualtext_auto_trigger = config.virtualtext.enable
-    M.virt_text_style = config.virtualtext.style
-    vim.api.nvim_set_hl(0, "CustomVirttextHighlight", M.virt_text_style)
-    vim.api.nvim_set_decoration_provider(M.ns_id, {})
+    vim.api.nvim_set_hl(0, "CustomVirttextHighlight", config.virtualtext.style)
 end
 
 ------------------------------------------------------------------------------
