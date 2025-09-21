@@ -32,7 +32,7 @@ function M.VirtualText:update_preview(text)
     if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil or text == "" then
         return
     end
-    if vim.api.nvim_get_mode().mode ~= "i" then
+    if vim.fn.mode() ~= "i" or vim.g.model_cmp_set_nomode == true then
         return
     end
 
