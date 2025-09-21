@@ -1,62 +1,38 @@
-local context = require("model_cmp.context")
+local config = require("model_cmp.config")
+
+---@class ModelCmp.VitualText
+---@field aug_id integer augroup id
+---@field ns_id integer namespace id
+---@field ext_ids integer[] extmark ids
 
 local M = {}
 
 M.ns_id = vim.api.nvim_create_namespace("model_cmp.virtualtext")
 M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true })
 
-M.CaptureText = {}
-
----@class ModelCmp.VitualText
----@field aug_id integer augroup id
----@field ns_id integer namespace id
----@field ext_ids integer[] extmark ids
 M.VirtualText = {
     aug_id = M.augroup,
     ns_id = M.ns_id,
     ext_ids = {},
 }
 
-local function remove_empty_lines()
-    local start_line = vim.b.start_line
-    local count = vim.b.count
-    if start_line and count and count > 0 then
-        vim.api.nvim_buf_set_lines(0, start_line - 1, start_line + count, false, {})
-        vim.b.start_line = nil
-        vim.b.count = nil
-    end
-    vim.api.nvim_win_set_cursor(0, vim.b.cursor)
-end
-
-function M.VirtualText:clear_preview(ext_ids_arg)
-    if vim.b.start_line == nil then
-        return
-    end
-    local ext_ids = ext_ids_arg or self.ext_ids
-    for ext_id in pairs(ext_ids) do
+function M.VirtualText:clear_preview()
+    for ext_id in pairs(self.ext_ids) do
         vim.api.nvim_buf_del_extmark(0, self.ns_id, ext_id)
     end
-    remove_empty_lines()
+    self.ext_ids = {}
 end
 
-local function insert_empty_lines(current_line, no_line)
-    local lines = {}
-    for i = 1, no_line do
-        table.insert(lines, "")
-    end
-    vim.b.start_line = current_line
-    vim.b.count = no_line
-    vim.api.nvim_buf_set_lines(0, current_line - 1, current_line - 1, false, lines)
-end
-
+---@param text string
 function M.VirtualText:update_preview(text)
-    if vim.b.count ~= nil or vim.b.start_line ~= nil then
+    -- Checking all conditions before running update preview
+    if #self.ext_ids > 0 then
         self:clear_preview()
     end
-    if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil then
+    if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil or text == "" then
         return
     end
-    if vim.api.nvim_get_mode().mode ~= "i" then
+    if vim.fn.mode() ~= "i" or vim.g.model_cmp_set_nomode == true then
         return
     end
 
@@ -71,51 +47,19 @@ function M.VirtualText:update_preview(text)
         table.insert(lines, line)
     end
 
+    lines = { text }
+
     local ns_id = self.ns_id or vim.api.nvim_create_namespace("MyPluginVirtualText")
     self.ns_id = ns_id
-    self.ext_ids = {}
 
-    local match_inline = false
-    if #lines > 0 then
-        local first_line = lines[1]
-        -- Check if current line ends with a prefix of the first virtual line
-        for i = #first_line, 1, -1 do
-            local prefix = first_line:sub(1, i)
-            if current_line_text:sub(- #prefix) == prefix then
-                match_inline = true
-                break
-            end
-        end
-    end
-
-    local start_index = 1
-    if match_inline then
-        -- Put the first line as virtual text inline with current line
-        vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, -1, {
-            id = 1,
-            virt_text = { { lines[1], "CustomVirttextHighlight" } },
-            virt_text_pos = "eol",
-            right_gravity = true,
-        })
-        table.insert(self.ext_ids, 1)
-        start_index = 2
-    end
-
-    local num_remaining = #lines - (start_index - 1)
-    if num_remaining > 0 then
-        local original_ul = vim.api.nvim_get_option_value("undolevels", { buf = 0 })
-        vim.api.nvim_set_option_value("undolevels", -1, { buf = 0 })
-        insert_empty_lines(current_line_num + 1, num_remaining)
-        vim.api.nvim_set_option_value("undolevels", original_ul, { buf = 0 })
-    end
-
-    for idx = start_index, #lines do
+    for idx = 1, #lines do
         local line_text = lines[idx]
         local extmark_id = idx
         vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num + idx - 2, 0, {
             id = extmark_id,
             virt_text = { { line_text, "CustomVirttextHighlight" } },
             right_gravity = true,
+            undo_restore = true,
         })
         table.insert(self.ext_ids, extmark_id)
     end
@@ -123,10 +67,9 @@ function M.VirtualText:update_preview(text)
     M.CaptureText = lines
 end
 
-function M.setup(config)
+function M.setup()
     vim.g.model_cmp_virtualtext_auto_trigger = config.virtualtext.enable
-    M.virt_text_style = config.virtualtext.style
-    vim.api.nvim_set_hl(0, "CustomVirttextHighlight", M.virt_text_style)
+    vim.api.nvim_set_hl(0, "CustomVirttextHighlight", config.virtualtext.style)
 end
 
 ------------------------------------------------------------------------------
@@ -170,8 +113,8 @@ function action.toggle_auto_trigger()
     end
 end
 
-function action.clear_preview(ext_ids_arg)
-    M.VirtualText:clear_preview(ext_ids_arg)
+function action.clear_preview()
+    M.VirtualText:clear_preview()
 end
 
 M.action = action

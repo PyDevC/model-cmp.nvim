@@ -1,4 +1,4 @@
-local apiconfig = require("model_cmp.modelapi.apiconfig")
+local config = require("model_cmp.config")
 local context = require("model_cmp.context")
 local logger = require("model_cmp.logger")
 local prompter = require("model_cmp.modelapi.prompt")
@@ -18,8 +18,8 @@ local available_keys = {
 }
 
 local function check_available()
-    for keyname, key in pairs(apiconfig.default().apikeys) do
-        local envkey = apiconfig.get_env_keys(keyname)
+    for keyname, key in pairs(config.api.apikeys) do
+        local envkey = os.getenv(keyname)
         if key ~= "" or envkey ~= "" then
             available_keys[keyname] = 1
         end
@@ -29,7 +29,7 @@ local function check_available()
         if M.custom_url.url == "" or M.custom_url.port == "" then
             M.custom_url = { url = "http://127.0.0.1", port = "8080" }
         else
-            M.custom_url = apiconfig.default().custom_url
+            M.custom_url = config.api.custom_url
         end
     end
 end
@@ -82,15 +82,9 @@ function M.stop()
     vim.g.model_cmp_connection_server = nil
 end
 
-function M.setup(config)
+---@param opts? ModelCmp.Config
+function M.setup(opts)
     local api = config.api
-    M.apikeys = api.apikeys
-
-    for type, keys in pairs(M.apikeys) do
-        keys = apiconfig.get_env_keys(type)
-    end
-
-    M.custom_url = api.custom_url
     check_available()
 end
 

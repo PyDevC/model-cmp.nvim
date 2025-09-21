@@ -3,6 +3,8 @@
 AI autocomplete plugin.
 
 Official first Release date: 9 Sep 2025
+
+**warning:** Plugin is going some serious changes and will starting working after few iterations
 ## Installation
 
 Before installing the plugin, please make sure you have following pre-requisities:
@@ -14,6 +16,7 @@ Before installing the plugin, please make sure you have following pre-requisitie
 ```lua
 {
     "PyDevC/model-cmp.nvim",
+    tag = "v0.1.0",
     config = function()
         require("model_cmp").setup()
     end

@@ -13,7 +13,7 @@ end
 
 ---@param prompt Prompt
 function M.generate_request(prompt)
-    local custom = apiconfig.default()
+    local custom = apiconfig.default
 
     local messages = { prompt.systemrole }
     if prompt.language ~= "text" then

@@ -69,7 +69,7 @@ function M.generate_request(prompt)
     }
 
     table.insert(messages, { mainmsg })
-    local apikey = "x-goog-api-key: " .. apiconfig.get_env_keys("GEMINI_API_KEY")
+    local apikey = "x-goog-api-key: " .. os.getenv("GEMINI_API_KEY")
     local request = {
         -- TODO: ask user to add model of their choice
         generate_url("gemini-1.5-flash"),
