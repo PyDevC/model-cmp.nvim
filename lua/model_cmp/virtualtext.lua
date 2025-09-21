@@ -105,7 +105,10 @@ function M.VirtualText:update_preview(text)
 
     local num_remaining = #lines - (start_index - 1)
     if num_remaining > 0 then
+        local original_ul = vim.api.nvim_get_option_value("undolevels", { buf = 0 })
+        vim.api.nvim_set_option_value("undolevels", -1, { buf = 0 })
         insert_empty_lines(current_line_num + 1, num_remaining)
+        vim.api.nvim_set_option_value("undolevels", original_ul, { buf = 0 })
     end
 
     for idx = start_index, #lines do

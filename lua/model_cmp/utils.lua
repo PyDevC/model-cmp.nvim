@@ -5,8 +5,10 @@ local M = {}
 function M.decode_response(response)
     local ok, response_table = pcall(vim.fn.json_decode, response)
     if not ok or response_table == nil then
-        -- log this
         return
+    end
+    if response_table.error ~= nil then
+        return nil
     end
     return response_table.choices[1].message.content
 end
