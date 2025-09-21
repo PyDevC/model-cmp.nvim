@@ -63,9 +63,9 @@ local function create_usercmds()
 
         local actions = {}
         actions.virtualtext = {
-            enable = function() vim.b.model_cmp_virtualtext_auto_trigger = true; end,
-            disable = function() vim.b.model_cmp_virtualtext_auto_trigger = true; end,
-            toggle = function() virtualtext.toggle_auto_trigger() end
+            enable = function() virtualtext.action.enable_auto_trigger() end,
+            disable = function() virtualtext.action.disable_auto_trigger() end,
+            toggle = function() virtualtext.action.toggle_auto_trigger() end
         }
         actions.server = {
             local_server = function() end,
