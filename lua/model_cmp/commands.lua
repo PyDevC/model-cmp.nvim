@@ -8,7 +8,7 @@ local M = {}
 ---@return boolean Editspace
 local function check_editing_space(event)
     local file = event["file"]
-    if file == "" then
+    if file == "" or file == nil then
         return false
     elseif file:find 'oil:///' then
         return false
@@ -26,8 +26,7 @@ local function create_autocmds(group)
         {
             group = group,
             callback = function(event)
-                check_editing_space(event)
-                if M.timer:is_active() then
+                if not check_editing_space(event) or M.timer:is_active() or vim.fn.mode() ~= "i" then
                     return
                 end
                 M.timer:start(1000, 0, function() end)
@@ -39,7 +38,9 @@ local function create_autocmds(group)
         {
             group = group,
             callback = function(event)
-                check_editing_space(event)
+                if not check_editing_space(event) then
+                    return
+                end
                 require("model_cmp.virtualtext").action.clear_preview()
             end
         })

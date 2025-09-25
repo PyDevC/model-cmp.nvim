@@ -19,6 +19,7 @@ Before installing the plugin, please make sure you have following pre-requisitie
     tag = "v0.1.0",
     config = function()
         require("model_cmp").setup()
+        vim.keymap.set("i", "<C-s>", "<cmd>ModelCmp capture first<CR>")
     end
 }
 ```
@@ -81,6 +82,7 @@ return {
 
       },
     })
+    vim.keymap.set("i", "<C-s>", "<cmd>ModelCmp capture first<CR>")
   end,
 }
 ```
