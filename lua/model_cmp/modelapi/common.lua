@@ -35,8 +35,8 @@ local function check_available()
 end
 
 function M.send_request()
-    local currlang = context.ContextEngine.currlang
     local ctx = context.generate_context_text()
+    local currlang = context.ContextEngine.currlang
 
     local prompt = prompter.generate_prompt(currlang, ctx)
     local request

@@ -26,7 +26,7 @@ M.ContextEngine = {
     bufnr = vim.api.nvim_get_current_buf(),
     cursor = { 0, 0 },
     currlang = "text", -- default if none is set or found
-    id = 0, -- Need to think how to manipulate this this is imp to put the right virtual text for right context
+    id = 0,            -- Need to think how to manipulate this this is imp to put the right virtual text for right context
     ctx = {
         before = {},
         current = {},
@@ -53,13 +53,14 @@ function M.ContextEngine:clear_ctx()
 end
 
 function M.ContextEngine:get_currlang()
-    return vim.bo.filetype
+    self.currlang = vim.bo.filetype
 end
 
 function M.generate_context_text()
     if next(M.ContextEngine.ctx.current) == nil or M.ContextEngine.ctx.current == nil then
         M.ContextEngine:get_ctx()
     end
+    M.ContextEngine:get_currlang()
 
     -- before
     local lines = [[]]
