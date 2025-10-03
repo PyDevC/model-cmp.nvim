@@ -69,14 +69,15 @@ function M.VirtualText:update_preview(text)
     local ns_id = self.ns_id or vim.api.nvim_create_namespace("MyPluginVirtualText")
     self.ns_id = ns_id
 
+    local suggestion = utils.adjust_suggestion(lines[1])
+    local extmark_id = 1
+    vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, 0, {
+        id = extmark_id,
+        virt_text = { { suggestion, "CustomVirttextHighlight" } },
+    })
+    table.insert(self.ext_ids, extmark_id)
+
     if #lines == 1 then
-        local suggestion = utils.adjust_suggestion(lines[1])
-        local extmark_id = 1
-        vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, 0, {
-            id = extmark_id,
-            virt_text = { { suggestion, "CustomVirttextHighlight" } },
-        })
-        table.insert(self.ext_ids, extmark_id)
         return
     end
 
@@ -104,6 +105,9 @@ end
 local action = {}
 
 function action.capturefirstline()
+    -- TODO: check for buffer
+    local currline = vim.fn.line('.')
+    vim.api.nvim_buf_set_lines(0, currline - 1, currline, false, { M.CaptureText.contents[1] })
 end
 
 function action.capturealllines()
