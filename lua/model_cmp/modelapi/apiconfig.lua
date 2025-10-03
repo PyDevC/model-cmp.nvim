@@ -10,12 +10,12 @@ local M = {}
 ---@type ModelCmp.Modelapi.Config
 M.default = {
     apikeys = {
-        GEMINI_API_KEY = ""
+        GEMINI_API_KEY = "",
     },
     custom_url = {
         url = "http://127.0.0.1",
-        port = "8080"
-    }
+        port = "8080",
+    },
 }
 
 return M

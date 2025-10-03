@@ -34,16 +34,16 @@ end
 local function log_template()
     local log = {
         type = vim.log.levels.OFF,
-        message = ""
+        message = "",
     }
     return log
 end
 
 function M.save_logs()
-    local logdir = vim.fn.stdpath('log')
+    local logdir = vim.fn.stdpath("log")
     local filepath = logdir .. "/model_cmp.log"
-    vim.fn.writefile({timestamp()}, filepath, 'a')
-    vim.fn.writefile(M.Logs, filepath, 'a')
+    vim.fn.writefile({ timestamp() }, filepath, "a")
+    vim.fn.writefile(M.Logs, filepath, "a")
 end
 
 function M.info(message)

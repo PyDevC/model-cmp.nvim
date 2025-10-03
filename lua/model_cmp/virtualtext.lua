@@ -20,7 +20,7 @@ M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true 
 M.CaptureText = {
     contents = {},
     bufferid = 0,
-    line_number = nil
+    line_number = nil,
 }
 
 M.VirtualText = {
@@ -69,11 +69,12 @@ function M.VirtualText:update_preview(text)
     local ns_id = self.ns_id or vim.api.nvim_create_namespace("MyPluginVirtualText")
     self.ns_id = ns_id
 
-    local suggestion = utils.adjust_suggestion(lines[1])
+    local suggestion, col_num = utils.adjust_suggestion(lines[1])
     local extmark_id = 1
-    vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, 0, {
+    vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, col_num - 1, {
         id = extmark_id,
         virt_text = { { suggestion, "CustomVirttextHighlight" } },
+        hl_mode = "combine",
     })
     table.insert(self.ext_ids, extmark_id)
 
@@ -83,7 +84,7 @@ function M.VirtualText:update_preview(text)
 
     for idx = 2, #lines do
         local line_text = lines[idx]
-        local extmark_id = idx
+        extmark_id = idx
         vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num + idx - 2, 0, {
             id = extmark_id,
             virt_text = { { line_text, "CustomVirttextHighlight" } },
@@ -106,12 +107,11 @@ local action = {}
 
 function action.capturefirstline()
     -- TODO: check for buffer
-    local currline = vim.fn.line('.')
+    local currline = vim.fn.line(".")
     vim.api.nvim_buf_set_lines(0, currline - 1, currline, false, { M.CaptureText.contents[1] })
 end
 
-function action.capturealllines()
-end
+function action.capturealllines() end
 
 function action.disable_auto_trigger()
     vim.g.model_cmp_virtualtext_auto_trigger = false

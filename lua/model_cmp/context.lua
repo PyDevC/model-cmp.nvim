@@ -26,11 +26,11 @@ M.ContextEngine = {
     bufnr = vim.api.nvim_get_current_buf(),
     cursor = { 0, 0 },
     currlang = "text", -- default if none is set or found
-    id = 0,            -- Need to think how to manipulate this this is imp to put the right virtual text for right context
+    id = 0, -- Need to think how to manipulate this this is imp to put the right virtual text for right context
     ctx = {
         before = {},
         current = {},
-        after = {}
+        after = {},
     },
 }
 
@@ -48,7 +48,7 @@ function M.ContextEngine:clear_ctx()
     self.ctx = {
         before = {},
         current = {},
-        after = {}
+        after = {},
     }
 end
 
@@ -65,7 +65,7 @@ function M.generate_context_text()
     -- before
     local lines = [[]]
     for idx, line in ipairs(M.ContextEngine.ctx.before) do
-        lines = lines .. line .. '\n'
+        lines = lines .. line .. "\n"
     end
 
     -- current
@@ -79,7 +79,7 @@ function M.generate_context_text()
 
     -- after
     for idx, line in ipairs(M.ContextEngine.ctx.after) do
-        lines = lines .. line .. '\n'
+        lines = lines .. line .. "\n"
     end
 
     M.ContextEngine:clear_ctx()

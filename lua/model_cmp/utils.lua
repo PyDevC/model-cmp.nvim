@@ -19,7 +19,7 @@ end
 function M.parse_messages(input)
     local str_input = ""
     for _, k in ipairs(input) do
-        str_input = str_input .. k .. '\n'
+        str_input = str_input .. k .. "\n"
     end
 
     local messages = {}
@@ -27,7 +27,7 @@ function M.parse_messages(input)
         code = code:gsub("^%s+", ""):gsub("%s+$", "")
         table.insert(messages, {
             role = role,
-            content = code
+            content = code,
         })
     end
 

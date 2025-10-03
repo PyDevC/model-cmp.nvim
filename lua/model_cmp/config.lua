@@ -14,7 +14,7 @@ function M.default()
             lspconfig = true,
             cmp = true,
             coq = true,
-            blink = true
+            blink = true,
         },
         request_delay = 1000,
         api = require("model_cmp.modelapi.apiconfig").default,
@@ -25,8 +25,8 @@ function M.default()
                 -- Setup the Highlight group for Virtual text suggestions
                 fg = "#b53a3a",
                 italic = false,
-                bold = false
-            }
+                bold = false,
+            },
         },
     }
 end
@@ -47,8 +47,8 @@ function M.setup(opts)
 end
 
 return setmetatable(M, {
-  __index = function(_, key)
-    options = options or M.setup()
-    return options[key]
-  end,
+    __index = function(_, key)
+        options = options or M.setup()
+        return options[key]
+    end,
 })
