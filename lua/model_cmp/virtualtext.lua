@@ -1,14 +1,27 @@
 local config = require("model_cmp.config")
+local utils = require("model_cmp.utils")
+local logger = require("model_cmp.logger")
 
 ---@class ModelCmp.VitualText
 ---@field aug_id integer augroup id
 ---@field ns_id integer namespace id
 ---@field ext_ids integer[] extmark ids
 
+---@class CaptureText
+---@field contents string[]
+---@field bufferid integer
+---@field line_number integer
+
 local M = {}
 
 M.ns_id = vim.api.nvim_create_namespace("model_cmp.virtualtext")
 M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true })
+
+M.CaptureText = {
+    contents = {},
+    bufferid = 0,
+    line_number = nil
+}
 
 M.VirtualText = {
     aug_id = M.augroup,
@@ -27,6 +40,7 @@ end
 function M.VirtualText:update_preview(text)
     -- Checking all conditions before running update preview
     if #self.ext_ids > 0 then
+        require("model_cmp.logger").info("clearning preview")
         self:clear_preview()
     end
     if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil or text == "" then
@@ -35,24 +49,39 @@ function M.VirtualText:update_preview(text)
     if vim.fn.mode() ~= "i" or vim.g.model_cmp_set_nomode == true then
         return
     end
+    require("model_cmp.logger").info("updating preview")
 
     local cursor = vim.api.nvim_win_get_cursor(0) -- {line, col}
     local current_line_num = cursor[1]
-    local current_line_text = vim.api.nvim_get_current_line()
+    M.CaptureText.line_number = current_line_num
 
     vim.b.cursor = cursor
 
     local lines = {}
-    for line in text:gmatch("[^\r\n]+") do
-        table.insert(lines, line)
+    for line in text:gmatch("([^\n]*)[\n]?") do
+        logger.info(line)
+        if line ~= "" then
+            table.insert(lines, line)
+        end
     end
-
-    lines = { text }
+    M.CaptureText.contents = lines
 
     local ns_id = self.ns_id or vim.api.nvim_create_namespace("MyPluginVirtualText")
     self.ns_id = ns_id
 
-    for idx = 1, #lines do
+    local suggestion = utils.adjust_suggestion(lines[1])
+    local extmark_id = 1
+    vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, 0, {
+        id = extmark_id,
+        virt_text = { { suggestion, "CustomVirttextHighlight" } },
+    })
+    table.insert(self.ext_ids, extmark_id)
+
+    if #lines == 1 then
+        return
+    end
+
+    for idx = 2, #lines do
         local line_text = lines[idx]
         local extmark_id = idx
         vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num + idx - 2, 0, {
@@ -63,8 +92,6 @@ function M.VirtualText:update_preview(text)
         })
         table.insert(self.ext_ids, extmark_id)
     end
-
-    M.CaptureText = lines
 end
 
 function M.setup()
@@ -78,18 +105,9 @@ end
 local action = {}
 
 function action.capturefirstline()
-    local cursor = vim.api.nvim_win_get_cursor(0)
-    local line, col = cursor[1] - 1, cursor[2]
-    M.CaptureText = vim.list_slice(M.CaptureText, 1, 1)
-    M.VirtualText:clear_preview()
-
-    vim.api.nvim_buf_set_text(0, line, col, line, col, M.CaptureText)
-    local new_col = vim.fn.strcharlen(M.CaptureText[#M.CaptureText])
-    if #M.CaptureText == 1 then
-        new_col = new_col + col
-    end
-    vim.api.nvim_win_set_cursor(0, { line + #M.CaptureText, new_col })
-    M.CaptureText = {}
+    -- TODO: check for buffer
+    local currline = vim.fn.line('.')
+    vim.api.nvim_buf_set_lines(0, currline - 1, currline, false, { M.CaptureText.contents[1] })
 end
 
 function action.capturealllines()

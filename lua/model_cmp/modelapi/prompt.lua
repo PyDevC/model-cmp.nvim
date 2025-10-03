@@ -6,7 +6,7 @@ M.default_systemrole = {
     role = "system",
     content = [[Act as GitHub Copilot. Complete the code where the <missing> token is.
 Follow the instructions:
-- Output only the current line after replacing the <missing> tag.
+- Output the full line.
 - No explanations, no comments, no full files generations allowed.
 - Max code generation is 5 lines.
 - Match the language and indentation.
@@ -16,7 +16,10 @@ Follow the instructions:
 ---@param language string
 local function fewshot_lang_parser(language)
     local datadir = vim.fn.stdpath('data') .. "/lazy/model-cmp.nvim/data/"
-    local file = vim.fn.readfile(datadir .. language .. ".txt")
+    local ok, file = pcall(vim.fn.readfile, datadir .. language .. ".txt")
+    if not ok then
+        return
+    end
     return utils.parse_messages(file)
 end
 
@@ -59,6 +62,9 @@ function M.generate_prompt(language, ctx)
         return prompt
     end
     local fewshots = fewshot_lang_parser(language)
+    if fewshots == nil then
+        return prompt
+    end
     prompt.fewshots = fewshots
     prompt.language = language
     return prompt
