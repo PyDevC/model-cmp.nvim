@@ -62,7 +62,7 @@ function M.send_request()
 
     req.send(request, function(response)
         vim.schedule(function()
-            local text = nil
+            local text
             local type = vim.g.model_cmp_connection_server
             text = utils.decode_response(response, type)
             if text == nil or text == "" then
@@ -77,9 +77,7 @@ function M.stop()
     vim.g.model_cmp_connection_server = nil
 end
 
----@param opts? ModelCmp.Config
-function M.setup(opts)
-    local api = config.api
+function M.setup()
     check_available()
 end
 

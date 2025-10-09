@@ -1,16 +1,11 @@
-local apiconfig = require("model_cmp.modelapi.apiconfig")
-local logger = require("model_cmp.logger")
-
 local M = {}
 
 ---@param model_name string
 local function generate_url(model_name)
-    return "https://generativelanguage.googleapis.com/v1beta/models/"
-        .. model_name
-        .. ":generateContent"
+    return "https://generativelanguage.googleapis.com/v1beta/models/" .. model_name .. ":generateContent"
 end
 
-function M.start(model_name)
+function M.start()
     vim.g.model_cmp_connection_server = "gemini"
 end
 

@@ -43,7 +43,7 @@ function M.setup(opts)
     options = vim.tbl_deep_extend("force", M.default(), opts)
     require("model_cmp.commands").setup()
     require("model_cmp.virtualtext").setup()
-    require("model_cmp.modelapi.common").setup(opts)
+    require("model_cmp.modelapi.common").setup()
     require("model_cmp.utils").MAX_ERROR_COUNT = options.requests.max_retries
     return options
 end
