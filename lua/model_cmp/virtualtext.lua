@@ -69,7 +69,8 @@ function M.VirtualText:update_preview(text)
     local ns_id = self.ns_id or vim.api.nvim_create_namespace("MyPluginVirtualText")
     self.ns_id = ns_id
 
-    local suggestion, col_num = utils.adjust_suggestion(lines[1])
+    local curr = vim.api.nvim_get_current_line()
+    local suggestion, col_num = utils.adjust_suggestion(curr, lines[1])
     local extmark_id = 1
     vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, col_num - 1, {
         id = extmark_id,

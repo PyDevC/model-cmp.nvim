@@ -89,8 +89,7 @@ local function lcs(currline, suggestion)
 end
 
 ---@param suggestion string
-function M.adjust_suggestion(suggestion)
-    local curr = vim.api.nvim_get_current_line()
+function M.adjust_suggestion(curr, suggestion)
     return lcs(curr, suggestion)
 end
 

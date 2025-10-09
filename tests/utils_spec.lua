@@ -150,4 +150,12 @@ describe("model_cmp.utils", function()
             assert.are.same(samplemessage, utils.parse_messages(samplefileinput))
         end
     )
+
+    it("Text adjusting according to content", function()
+        assert.are.same("options", utils.adjust_suggestion("return ", "return options"))
+        assert.are.same("print(options)", utils.adjust_suggestion("return ", "print(options)"))
+        assert.are.same("return 0", utils.adjust_suggestion(";", "return 0;"))
+        assert.are.same("0", utils.adjust_suggestion("return ;", "return 0;"))
+    end
+    )
 end)
