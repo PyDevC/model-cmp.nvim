@@ -1,6 +1,6 @@
 local api = require("model_cmp.modelapi.common")
 local logger = require("model_cmp.logger")
-
+local config = require("model_cmp.config")
 local uv = vim.uv
 
 local M = {}
@@ -25,6 +25,16 @@ local function create_autocmds(group)
     vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
         group = group,
         callback = function(event)
+            if vim.g.server_error_count == config.max_retries then
+                if vim.g.model_cmp_connection_server == nil then
+                    return
+                end
+                vim.g.model_cmp_connection_server = nil
+                error(
+                    "There is something wrong with your server setup, please check your logs before doing anything :ModelCmpLogs"
+                )
+                return
+            end
             if not check_editing_space(event) or M.timer:is_active() or vim.fn.mode() ~= "i" then
                 return
             end
@@ -112,9 +122,11 @@ local function create_usercmds()
         local servers = {
             local_llama = function()
                 vim.g.model_cmp_connection_server = "local_llama"
+                vim.g.server_error_count = 0
             end,
             gemini = function()
                 vim.g.model_cmp_connection_server = "gemini"
+                vim.g.server_error_count = 0
             end,
         }
         servers[args[1]]()

@@ -3,22 +3,6 @@ local logger = require("model_cmp.logger")
 
 local M = {}
 
--- The same is in utils but this one is for gemini specific output
-function M.decode_response(response)
-    local ok, response_table = pcall(vim.fn.json_decode, response)
-    if not ok or response_table == nil then
-        logger.warning("No response recorded, please check the API key or internet connection.")
-        return
-    end
-
-    if response_table.error ~= nil then
-        logger.error("Something wrong with your api key")
-        logger.error(response)
-        return
-    end
-    return response_table.candidates[1].content.parts[1].text
-end
-
 ---@param model_name string
 local function generate_url(model_name)
     return "https://generativelanguage.googleapis.com/v1beta/models/"

@@ -63,11 +63,8 @@ function M.send_request()
     req.send(request, function(response)
         vim.schedule(function()
             local text = nil
-            if vim.g.model_cmp_connection_server == "gemini" then
-                text = gemini.decode_response(response)
-            else
-                text = utils.decode_response(response)
-            end
+            local type = vim.g.model_cmp_connection_server
+            text = utils.decode_response(response, type)
             if text == nil or text == "" then
                 return
             end
