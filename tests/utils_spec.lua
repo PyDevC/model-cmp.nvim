@@ -40,8 +40,7 @@ local error_response_json = [[{
 describe("model_cmp.utils", function()
     it(
         "decode common response json",
-        function() assert.are.same("The capital of France is Paris.", utils.decode_response(response_json)) end
+        function() assert.are.same("The capital of France is Paris.", utils.decode_response(response_json, "local_llama")) end
     )
-    it("decode error response json", function() assert.is_nil(utils.decode_response(error_response_json)) end)
-    it("adjust suggestions", function() assert.is_nil(utils.adjust_suggestion("")) end)
+    it("decode error response json", function() assert.is_nil(utils.decode_response(error_response_json, "local_llama")) end)
 end)

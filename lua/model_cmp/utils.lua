@@ -5,6 +5,7 @@ local M = {}
 vim.g.server_error_count = 0
 
 ---@param response string json as string
+---@param type string type of server running
 function M.decode_response(response, type)
     local ok, response_table = pcall(vim.fn.json_decode, response)
     if not ok or response_table == nil then
