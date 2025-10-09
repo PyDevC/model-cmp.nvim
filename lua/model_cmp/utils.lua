@@ -1,25 +1,38 @@
+local logger = require("model_cmp.logger")
+
 local M = {}
 
+vim.g.server_error_count = 0
+
 ---@param response string json as string
-function M.decode_response(response)
+function M.decode_response(response, type)
     local ok, response_table = pcall(vim.fn.json_decode, response)
     if not ok or response_table == nil then
         return
     end
     if response_table.error ~= nil then
-        return nil
-    end
-    if response_table.choices[1].message.content == nil then
+        logger.warning("response has error")
+        vim.g.server_error_count = vim.g.server_error_count + 1
         return
     end
-    return response_table.choices[1].message.content
+    if type == "gemini" then
+        if response_table.candidates[1].content.parts[1].text == nil then
+            return
+        end
+        return response_table.candidates[1].content.parts[1].text
+    elseif type == "local_llama" then
+        if response_table.choices[1].message.content == nil then
+            return
+        end
+        return response_table.choices[1].message.content
+    end
 end
 
 ---@param input string[]
 function M.parse_messages(input)
     local str_input = ""
     for _, k in ipairs(input) do
-        str_input = str_input .. k .. '\n'
+        str_input = str_input .. k .. "\n"
     end
 
     local messages = {}
@@ -27,7 +40,7 @@ function M.parse_messages(input)
         code = code:gsub("^%s+", ""):gsub("%s+$", "")
         table.insert(messages, {
             role = role,
-            content = code
+            content = code,
         })
     end
 

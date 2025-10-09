@@ -29,9 +29,11 @@ function M.generate_request(prompt)
 
     local request = {
         "-s",
-        "-X", "POST",
+        "-X",
+        "POST",
         generate_url(custom.custom_url),
-        "-H", "Content-Type: application/json",
+        "-H",
+        "Content-Type: application/json",
         "-d",
         vim.fn.json_encode({
             model = "llama",
@@ -39,7 +41,7 @@ function M.generate_request(prompt)
             n_predict = 128,
             temperature = 0.1,
             stop = { "</s>" },
-            max_token = 50
+            max_token = 50,
         }),
     }
     return request

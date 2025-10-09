@@ -14,7 +14,7 @@ local M = {}
 vim.g.model_cmp_connection_server = nil
 
 local available_keys = {
-    GEMINI_API_KEY = 0
+    GEMINI_API_KEY = 0,
 }
 
 local function check_available()
@@ -60,22 +60,17 @@ function M.send_request()
         return
     end
 
-    req.send(request,
-        function(response)
-            vim.schedule(function()
-                local text = nil
-                if vim.g.model_cmp_connection_server == "gemini" then
-                    text = gemini.decode_response(response)
-                else
-                    text = utils.decode_response(response)
-                end
-                if text == nil or text == "" then
-                    return
-                end
-                virtualtext.VirtualText:update_preview(text)
-            end)
-        end
-    )
+    req.send(request, function(response)
+        vim.schedule(function()
+            local text = nil
+            local type = vim.g.model_cmp_connection_server
+            text = utils.decode_response(response, type)
+            if text == nil or text == "" then
+                return
+            end
+            virtualtext.VirtualText:update_preview(text)
+        end)
+    end)
 end
 
 function M.stop()

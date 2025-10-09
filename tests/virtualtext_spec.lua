@@ -16,7 +16,6 @@ local function custom_virtualtext()
     return virt
 end
 
-
 describe("model_cmp.virtualtext.VirtualText", function()
     it("test clear preview via custom previews", function()
         local virt = custom_virtualtext()
@@ -24,7 +23,7 @@ describe("model_cmp.virtualtext.VirtualText", function()
         assert.are.same(0, #virt.ext_ids)
     end)
 
-    -- This test requires working in neovim in insert mode but currently 
+    -- This test requires working in neovim in insert mode but currently
     -- couldn't find a way to do so
     --
     --it("test ext_ids for display text", function()

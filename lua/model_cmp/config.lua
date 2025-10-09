@@ -1,6 +1,7 @@
 ---@class ModelCmp.Config
 ---@field integrations table<string, boolean>
 ---@field request_delay integer
+---@field max_retries integer
 ---@field api ModelCmp.Modelapi.Config
 ---@field virtualtext table<string, string> virtual text config
 
@@ -14,9 +15,10 @@ function M.default()
             lspconfig = true,
             cmp = true,
             coq = true,
-            blink = true
+            blink = true,
         },
         request_delay = 1000,
+        max_retries = 5,
         api = require("model_cmp.modelapi.apiconfig").default,
         virtualtext = {
             enable = false,
@@ -25,8 +27,8 @@ function M.default()
                 -- Setup the Highlight group for Virtual text suggestions
                 fg = "#b53a3a",
                 italic = false,
-                bold = false
-            }
+                bold = false,
+            },
         },
     }
 end
@@ -43,12 +45,13 @@ function M.setup(opts)
     require("model_cmp.commands").setup()
     require("model_cmp.virtualtext").setup()
     require("model_cmp.modelapi.common").setup(opts)
+    require("model_cmp.utils").MAX_ERROR_COUNT = options.max_retries
     return options
 end
 
 return setmetatable(M, {
-  __index = function(_, key)
-    options = options or M.setup()
-    return options[key]
-  end,
+    __index = function(_, key)
+        options = options or M.setup()
+        return options[key]
+    end,
 })

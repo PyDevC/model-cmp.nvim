@@ -3,23 +3,11 @@ local logger = require("model_cmp.logger")
 
 local M = {}
 
--- The same is in utils but this one is for gemini specific output
-function M.decode_response(response)
-    local ok, response_table = pcall(vim.fn.json_decode, response)
-    if not ok or response_table == nil then
-        logger.warning("No response recorded, please check the API key or internet connection.")
-        return
-    end
-
-    if response_table.error ~= nil then
-        logger.error("Something wrong with your api key")
-        return
-    end
-    return response_table.candidates[1].content.parts[1].text
-end
-
+---@param model_name string
 local function generate_url(model_name)
-    return "https://generativelanguage.googleapis.com/v1beta/models/" .. model_name .. ":generateContent"
+    return "https://generativelanguage.googleapis.com/v1beta/models/"
+        .. model_name
+        .. ":generateContent"
 end
 
 function M.start(model_name)
@@ -32,16 +20,16 @@ local function transform_fewshots(prompt)
     for _, msg in ipairs(prompt.fewshots) do
         local gemini_message = {}
 
-        if msg.role == 'user' then
+        if msg.role == "user" then
             gemini_message = {
-                role = 'user',
+                role = "user",
                 parts = {
                     { text = msg.content },
                 },
             }
-        elseif msg.role == 'assistant' then
+        elseif msg.role == "assistant" then
             gemini_message = {
-                role = 'model',
+                role = "model",
                 parts = {
                     { text = msg.content },
                 },
@@ -62,7 +50,7 @@ function M.generate_request(prompt)
         messages = transform_fewshots(prompt)
     end
     local mainmsg = {
-        role = 'user',
+        role = "user",
         parts = {
             { text = prompt.context.content },
         },
@@ -72,24 +60,27 @@ function M.generate_request(prompt)
     local apikey = "x-goog-api-key: " .. os.getenv("GEMINI_API_KEY")
     local request = {
         -- TODO: ask user to add model of their choice
-        generate_url("gemini-1.5-flash"),
-        "-H", "Content-Type: application/json",
-        "-H", apikey,
-        "-X", "POST",
+        generate_url("gemini-2.0-flash"),
+        "-H",
+        "Content-Type: application/json",
+        "-H",
+        apikey,
+        "-X",
+        "POST",
         "-d",
         vim.fn.json_encode({
             system_instruction = {
                 parts = {
-                    text = prompt.systemrole.content
-                }
+                    text = prompt.systemrole.content,
+                },
             },
             contents = messages,
             generationConfig = {
                 temperature = 0.1,
                 maxOutputTokens = 128,
-                stopSequences = { "</s>" }
-            }
-        })
+                stopSequences = { "</s>" },
+            },
+        }),
     }
     return request
 end

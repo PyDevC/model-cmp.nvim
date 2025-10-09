@@ -2,7 +2,6 @@ local Job = require("plenary.job")
 
 local M = {}
 
-
 function M.send(request_args, callback)
     local result = {}
     local job = Job:new({
