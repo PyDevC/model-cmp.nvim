@@ -119,4 +119,35 @@ describe("model_cmp.utils", function()
     it("decode local llama error response json",
         function() assert.is_nil(utils.decode_response(llama_error_response_json, "local_llama")) end
     )
+
+    it("Parse few shot prompts from inputs",
+        function()
+            local samplefileinput = {
+                "@role: user",
+                "@content:",
+                "<code>",
+                "public int add(int a, int b) {",
+                "    return <missing>;",
+                "}",
+                "</code>",
+                "",
+                "@role: assistant",
+                "@content:",
+                "<code>",
+                "    return a + b;",
+                "</code>"
+            }
+            local samplemessage = {
+                {
+                    content = 'public int add(int a, int b) {\n    return <missing>;\n}',
+                    role = 'user'
+                },
+                {
+                    content = '    return a + b;',
+                    role = 'assistant'
+                }
+            }
+            assert.are.same(samplemessage, utils.parse_messages(samplefileinput))
+        end
+    )
 end)

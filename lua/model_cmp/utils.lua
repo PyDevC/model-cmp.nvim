@@ -31,14 +31,12 @@ end
 
 ---@param input string[]
 function M.parse_messages(input)
-    local str_input = ""
-    for _, k in ipairs(input) do
-        str_input = str_input .. k .. "\n"
-    end
+    local str_input = table.concat(input, "\n") .. "\n" -- cleaner concat
 
     local messages = {}
     for role, code in str_input:gmatch("@role:%s*(%w+)%s*@content:%s*<code>(.-)</code>") do
-        code = code:gsub("^%s+", ""):gsub("%s+$", "")
+        -- Remove leading/trailing blank lines, preserve indentation
+        code = code:gsub("^%s*\n", ""):gsub("\n%s*$", "")
         table.insert(messages, {
             role = role,
             content = code,
