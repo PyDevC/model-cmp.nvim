@@ -7,7 +7,7 @@ local generate_url = function(custom_url)
     return url
 end
 
-function M.start(model_name)
+function M.start()
     vim.g.model_cmp_connection_server = "local_llama"
 end
 

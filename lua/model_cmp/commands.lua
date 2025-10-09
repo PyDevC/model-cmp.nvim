@@ -25,13 +25,14 @@ local function create_autocmds(group)
     vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
         group = group,
         callback = function(event)
-            if vim.g.server_error_count == config.max_retries then
+            if vim.g.server_error_count == config.requests.max_retries then
                 if vim.g.model_cmp_connection_server == nil then
                     return
                 end
                 vim.g.model_cmp_connection_server = nil
                 error(
-                    "There is something wrong with your server setup, please check your logs before doing anything :ModelCmpLogs"
+                    "There is something wrong with your server setup,"
+                        .. " please check your logs before doing anything :ModelCmpLogs"
                 )
                 return
             end
@@ -114,7 +115,7 @@ local function create_usercmds()
     })
 
     vim.api.nvim_create_user_command("ModelCmpStart", function(args)
-        local ok, autocmd = pcall(vim.api.nvim_get_autocmds, { group = "model_cmp_grp" })
+        local ok = pcall(vim.api.nvim_get_autocmds, { group = "model_cmp_grp" })
         if not ok then
             M.setup()
         end

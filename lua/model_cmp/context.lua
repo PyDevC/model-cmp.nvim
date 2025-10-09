@@ -64,7 +64,7 @@ function M.generate_context_text()
 
     -- before
     local lines = [[]]
-    for idx, line in ipairs(M.ContextEngine.ctx.before) do
+    for _, line in pairs(M.ContextEngine.ctx.before) do
         lines = lines .. line .. "\n"
     end
 
@@ -72,16 +72,15 @@ function M.generate_context_text()
     local line = M.ContextEngine.ctx.current[1]
     local col = M.ContextEngine.cursor[2]
     if line == nil then
-        line = lines .. "\n<missing>\n"
+        lines = lines .. "\n<missing>\n"
     else
         lines = lines .. line:sub(1, col) .. "<missing>" .. line:sub(col + 1)
     end
 
     -- after
-    for idx, line in ipairs(M.ContextEngine.ctx.after) do
-        lines = lines .. line .. "\n"
+    for _, i in ipairs(M.ContextEngine.ctx.after) do
+        lines = i .. i .. "\n"
     end
-
     M.ContextEngine:clear_ctx()
     return lines
 end

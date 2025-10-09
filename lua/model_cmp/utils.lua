@@ -5,6 +5,7 @@ local M = {}
 vim.g.server_error_count = 0
 
 ---@param response string json as string
+---@param type string type of server running
 function M.decode_response(response, type)
     local ok, response_table = pcall(vim.fn.json_decode, response)
     if not ok or response_table == nil then
@@ -30,14 +31,12 @@ end
 
 ---@param input string[]
 function M.parse_messages(input)
-    local str_input = ""
-    for _, k in ipairs(input) do
-        str_input = str_input .. k .. "\n"
-    end
+    local str_input = table.concat(input, "\n") .. "\n" -- cleaner concat
 
     local messages = {}
     for role, code in str_input:gmatch("@role:%s*(%w+)%s*@content:%s*<code>(.-)</code>") do
-        code = code:gsub("^%s+", ""):gsub("%s+$", "")
+        -- Remove leading/trailing blank lines, preserve indentation
+        code = code:gsub("^%s*\n", ""):gsub("\n%s*$", "")
         table.insert(messages, {
             role = role,
             content = code,
@@ -90,8 +89,7 @@ local function lcs(currline, suggestion)
 end
 
 ---@param suggestion string
-function M.adjust_suggestion(suggestion)
-    local curr = vim.api.nvim_get_current_line()
+function M.adjust_suggestion(curr, suggestion)
     return lcs(curr, suggestion)
 end
 
