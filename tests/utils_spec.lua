@@ -4,7 +4,7 @@
 local utils = require("model_cmp.utils")
 
 ---@type string
-local response_json = [[{
+local llama_response_json = [[{
   "id": "chatcmpl-12345",
   "object": "chat.completion",
   "created": 1695400000,
@@ -27,7 +27,45 @@ local response_json = [[{
 }
 ]]
 
-local error_response_json = [[{
+local gemini_response_json = [[{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          { "text": "The capital of France is Paris." }
+        ]
+      },
+      "finishReason": "stop",
+      "safetyRatings": [
+        {
+          "category": "HARM",
+          "probability": 0.0001,
+          "blocked": false
+        }
+      ],
+      "citationMetadata": {
+        "citations": [
+          {
+            "startIndex": 0,
+            "endIndex": 5,
+            "metadata": {
+              "source": "https://en.wikipedia.org/wiki/Paris",
+              "title": "Paris — Wikipedia"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "model": "gemini-2.5-flash",
+    "responseMimeType": "application/json",
+    "responseSchemaVersion": "1.0"
+  }
+}
+]]
+
+local llama_error_response_json = [[{
   "error": {
     "message": "Missing required field: 'messages'",
     "type": "invalid_request_error",
@@ -37,10 +75,48 @@ local error_response_json = [[{
 }
 ]]
 
+local gemini_error_response_json = [[{
+  "error": {
+    "code": 400,
+    "message": "Invalid argument: response schema too complex",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.BadRequest",
+        "fieldViolations": [
+          {
+            "field": "generationConfig.responseSchema",
+            "description": "Schema has too many nested levels or too many properties"
+          }
+        ]
+      }
+    ]
+  }
+}
+]]
+
 describe("model_cmp.utils", function()
     it(
-        "decode common response json",
-        function() assert.are.same("The capital of France is Paris.", utils.decode_response(response_json, "local_llama")) end
+        "decode gemini response json",
+        function()
+            assert.are.same("The capital of France is Paris.",
+                utils.decode_response(gemini_response_json, "gemini"))
+        end
     )
-    it("decode error response json", function() assert.is_nil(utils.decode_response(error_response_json, "local_llama")) end)
+
+    it(
+        "decode local llama response json",
+        function()
+            assert.are.same("The capital of France is Paris.",
+                utils.decode_response(llama_response_json, "local_llama"))
+        end
+    )
+
+    it("decode gemini error response json",
+        function() assert.is_nil(utils.decode_response(gemini_error_response_json, "gemini")) end
+    )
+
+    it("decode local llama error response json",
+        function() assert.is_nil(utils.decode_response(llama_error_response_json, "local_llama")) end
+    )
 end)
