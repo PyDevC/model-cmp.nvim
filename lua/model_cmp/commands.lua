@@ -121,10 +121,6 @@ local function create_usercmds()
     })
 
     vim.api.nvim_create_user_command("ModelCmpStart", function(args)
-        local ok = pcall(vim.api.nvim_get_autocmds, { group = "model_cmp_grp" })
-        if not ok then
-            M.setup()
-        end
         args = args.fargs
         local servers = {
             local_llama = function()
@@ -151,8 +147,9 @@ local function create_usercmds()
         if args.fargs[1] == "all" then
             vim.api.nvim_del_augroup_by_name("model_cmp_grp")
         end
-        vim.g.model_cmp_virtualtext_auto_trigger = ""
-    end, { nargs = "+" })
+        vim.g.model_cmp_connection_server = nil
+        vim.g.model_cmp_virtualtext_auto_trigger = false
+    end, { nargs = "*" })
 
     vim.api.nvim_create_user_command("ModelCmpLogs", function()
         vim.cmd("tabnew")
