@@ -36,12 +36,13 @@ end
 local options
 
 ---@param opts? ModelCmp.Config
+---@param maingroup integer MainAutoGrp
 ---@return ModelCmp.Config
-function M.setup(opts)
+function M.setup(opts, maingroup)
     opts = opts or {}
     ---@type ModelCmp.Config
     options = vim.tbl_deep_extend("force", M.default(), opts)
-    require("model_cmp.commands").setup()
+    require("model_cmp.commands").setup(maingroup)
     require("model_cmp.virtualtext").setup()
     require("model_cmp.modelapi.common").setup()
     require("model_cmp.utils").MAX_ERROR_COUNT = options.requests.max_retries

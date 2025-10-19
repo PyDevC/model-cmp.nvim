@@ -20,7 +20,7 @@ end
 ---@alias Augroup integer
 
 ---@param group Augroup
-local function create_autocmds(group)
+local function virtualtext_create_autocmds(group)
     M.timer = uv.new_timer()
     vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
         group = group,
@@ -77,9 +77,12 @@ local function create_usercmds()
         actions.virtualtext = {
             enable = function()
                 virtualtext.action.enable_auto_trigger()
+                M.VirtualAutoGrp = vim.api.nvim_create_augroup("model_cmp_virtualtext", {})
+                virtualtext_create_autocmds(M.VirtualAutoGrp)
             end,
             disable = function()
                 virtualtext.action.disable_auto_trigger()
+                vim.api.nvim_del_augroup_by_name("model_cmp_virtualtext")
             end,
             toggle = function()
                 virtualtext.action.toggle_auto_trigger()
@@ -164,9 +167,9 @@ local function create_usercmds()
     end, {})
 end
 
-function M.setup()
-    local autogrp = vim.api.nvim_create_augroup("model_cmp_grp", {})
-    create_autocmds(autogrp)
+---@param maingroup integer MainAutoGrp
+function M.setup(maingroup)
+    M.MainAutoGrp = maingroup
     create_usercmds()
 end
 
