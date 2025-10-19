@@ -25,6 +25,9 @@ local function create_autocmds(group)
     vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
         group = group,
         callback = function(event)
+            if vim.g.model_cmp_connection_server == nil then
+                return
+            end
             if vim.g.server_error_count == config.requests.max_retries then
                 if vim.g.model_cmp_connection_server == nil then
                     return

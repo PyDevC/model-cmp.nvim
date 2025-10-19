@@ -79,7 +79,7 @@ function M.generate_context_text()
 
     -- after
     for _, i in ipairs(M.ContextEngine.ctx.after) do
-        lines = i .. i .. "\n"
+        lines = lines .. i .. "\n"
     end
     M.ContextEngine:clear_ctx()
     return lines
