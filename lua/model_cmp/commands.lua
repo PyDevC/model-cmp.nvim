@@ -20,11 +20,14 @@ end
 ---@alias Augroup integer
 
 ---@param group Augroup
-local function create_autocmds(group)
+local function virtualtext_create_autocmds(group)
     M.timer = uv.new_timer()
     vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
         group = group,
         callback = function(event)
+            if vim.g.model_cmp_connection_server == nil then
+                return
+            end
             if vim.g.server_error_count == config.requests.max_retries then
                 if vim.g.model_cmp_connection_server == nil then
                     return
@@ -74,9 +77,12 @@ local function create_usercmds()
         actions.virtualtext = {
             enable = function()
                 virtualtext.action.enable_auto_trigger()
+                M.VirtualAutoGrp = vim.api.nvim_create_augroup("model_cmp_virtualtext", {})
+                virtualtext_create_autocmds(M.VirtualAutoGrp)
             end,
             disable = function()
                 virtualtext.action.disable_auto_trigger()
+                vim.api.nvim_del_augroup_by_name("model_cmp_virtualtext")
             end,
             toggle = function()
                 virtualtext.action.toggle_auto_trigger()
@@ -115,10 +121,6 @@ local function create_usercmds()
     })
 
     vim.api.nvim_create_user_command("ModelCmpStart", function(args)
-        local ok = pcall(vim.api.nvim_get_autocmds, { group = "model_cmp_grp" })
-        if not ok then
-            M.setup()
-        end
         args = args.fargs
         local servers = {
             local_llama = function()
@@ -145,8 +147,9 @@ local function create_usercmds()
         if args.fargs[1] == "all" then
             vim.api.nvim_del_augroup_by_name("model_cmp_grp")
         end
-        vim.g.model_cmp_virtualtext_auto_trigger = ""
-    end, { nargs = "+" })
+        vim.g.model_cmp_connection_server = nil
+        vim.g.model_cmp_virtualtext_auto_trigger = false
+    end, { nargs = "*" })
 
     vim.api.nvim_create_user_command("ModelCmpLogs", function()
         vim.cmd("tabnew")
@@ -161,9 +164,9 @@ local function create_usercmds()
     end, {})
 end
 
-function M.setup()
-    local autogrp = vim.api.nvim_create_augroup("model_cmp_grp", {})
-    create_autocmds(autogrp)
+---@param maingroup integer MainAutoGrp
+function M.setup(maingroup)
+    M.MainAutoGrp = maingroup
     create_usercmds()
 end
 

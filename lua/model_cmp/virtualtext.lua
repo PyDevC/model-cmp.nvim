@@ -1,6 +1,5 @@
 local config = require("model_cmp.config")
 local utils = require("model_cmp.utils")
-local logger = require("model_cmp.logger")
 
 ---@class ModelCmp.VitualText
 ---@field aug_id integer augroup id
@@ -49,7 +48,7 @@ function M.VirtualText:update_preview(text)
     if vim.fn.mode() ~= "i" or vim.g.model_cmp_set_nomode == true then
         return
     end
-    require("model_cmp.logger").info("updating preview")
+    require("model_cmp.logger").trace("updating preview")
 
     local cursor = vim.api.nvim_win_get_cursor(0) -- {line, col}
     local current_line_num = cursor[1]
@@ -59,7 +58,6 @@ function M.VirtualText:update_preview(text)
 
     local lines = {}
     for line in text:gmatch("([^\n]*)[\n]?") do
-        logger.info(line)
         if line ~= "" then
             table.insert(lines, line)
         end
