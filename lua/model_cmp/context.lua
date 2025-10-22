@@ -1,87 +1,117 @@
 local M = {}
 
-local function get_cursor()
-    return vim.api.nvim_win_get_cursor(0)
-end
-
-local function get_context_before(currentline)
-    local start = 0
-    local stop = currentline - 1
-    return vim.api.nvim_buf_get_lines(0, start, stop, false)
-end
-
-local function get_context_after(currentline)
-    local start = currentline
-    local stop = -1
-    return vim.api.nvim_buf_get_lines(0, start, stop, false)
-end
+---@class ctx
+---@field scopes TSNode[] Scopes of each function around the cursor
+---@field current string[] Current line the cursor is at
+---@field imports string[] This is related to Lsp stuff so we are going to integrate this in future
 
 ---@class ModelCmp.ContextEngine
----@field bufnr integer -- current buffer number
----@field cursor integer[] -- current cursor pos
----@field currlang string -- current language eg: python, c, cpp, markdown
----@field id integer -- context id
----@field ctx table<string, string[]> -- context
+---@field bufnr integer current buffer number
+---@field cursor integer[] current cursor pos
+---@field lang string querylanguage to choose
+---@field ctx ctx
 M.ContextEngine = {
-    bufnr = vim.api.nvim_get_current_buf(),
+    bufnr = 0,
     cursor = { 0, 0 },
-    currlang = "text", -- default if none is set or found
-    id = 0, -- Need to think how to manipulate this this is imp to put the right virtual text for right context
+    lang = "text",
     ctx = {
-        before = {},
+        scopes = {},
         current = {},
-        after = {},
+        imports = {},
     },
 }
 
-function M.ContextEngine:get_ctx()
-    self.cursor = get_cursor()
-    self.ctx.before = get_context_before(self.cursor[1])
-    self.ctx.after = get_context_after(self.cursor[1])
-    self.ctx.current = vim.api.nvim_buf_get_lines(0, self.cursor[1] - 1, self.cursor[1] + 1, false)
-    if not self.ctx.current then
-        self.ctx.current = { "" }
-    end
-end
-
 function M.ContextEngine:clear_ctx()
     self.ctx = {
-        before = {},
+        scopes = {},
         current = {},
-        after = {},
+        imports = {},
     }
 end
 
-function M.ContextEngine:get_currlang()
-    self.currlang = vim.bo.filetype
+function M.ContextEngine:get_root()
+    local parser = vim.treesitter.get_parser(0, self.lang, {})
+
+    if parser == nil then
+        return {}
+    end
+
+    local tree = parser:parse()[1]
+    return tree:root()
 end
 
-function M.generate_context_text()
-    if next(M.ContextEngine.ctx.current) == nil or M.ContextEngine.ctx.current == nil then
-        M.ContextEngine:get_ctx()
-    end
-    M.ContextEngine:get_currlang()
+function M.ContextEngine:get_scopes_and_ranges()
+    local scope_query = "context-scope"
+    local ok, query = pcall(vim.treesitter.query.get, self.lang, scope_query)
 
-    -- before
+    if not ok or query == nil then
+        return {}
+    end
+
+    local root = self:get_root()
+
+    for _, match, _ in query:iter_matches(root, self.bufnr, 0, -1, { all = true }) do
+        for _, nodes in pairs(match) do
+            for _, node in ipairs(nodes) do
+                table.insert(self.ctx.scopes, node)
+            end
+        end
+    end
+end
+
+function M.ContextEngine:get_ctx()
+    self.bufnr = vim.api.nvim_get_current_buf()
+    self.cursor = vim.api.nvim_win_get_cursor(0)
+    self.lang = vim.bo.ft
+    self:get_scopes_and_ranges()
+end
+
+---@param node TSNode
+---@return boolean
+local function scopes_inrange(node, cursor)
+    local start_r, _, end_r, _ = node:range()
+    return cursor[1] >= start_r and cursor[1] <= end_r
+end
+
+local function node_to_line_array(node_text)
+    local lines = {}
+    for line in node_text:gmatch("([^\n]*)[\n]?") do
+        if line ~= "" then
+            table.insert(lines, line)
+        end
+    end
+    return lines
+end
+
+local function add_missing_tag(line, cursor)
+    local missing = string.sub(line, 1, cursor[2]) .. "<missing>" .. string.sub(line, cursor[2] + 1, -1)
+    return missing
+end
+
+function M.ContextEngine:generate_context_text()
     local lines = [[]]
-    for _, line in pairs(M.ContextEngine.ctx.before) do
-        lines = lines .. line .. "\n"
+    self:get_ctx()
+
+    for _, k in ipairs(self.ctx.scopes) do
+        if scopes_inrange(k, self.cursor) then
+            lines = vim.treesitter.get_node_text(k, self.bufnr)
+        end
     end
 
-    -- current
-    local line = M.ContextEngine.ctx.current[1]
-    local col = M.ContextEngine.cursor[2]
-    if line == nil then
-        lines = lines .. "\n<missing>\n"
-    else
-        lines = lines .. line:sub(1, col) .. "<missing>" .. line:sub(col + 1)
+    local lines_list = node_to_line_array(lines)
+    local currentline = vim.api.nvim_buf_get_lines(self.bufnr, self.cursor[1] - 1, self.cursor[1] + 1, false)
+
+    for i, _ in ipairs(lines_list) do
+        if i == self.cursor[1] then
+            lines_list[i] = add_missing_tag(currentline[1], self.cursor)
+        end
     end
 
-    -- after
-    for _, i in ipairs(M.ContextEngine.ctx.after) do
-        lines = lines .. i .. "\n"
+    lines = [[]]
+    for _, k in ipairs(lines_list) do
+        lines = lines .. k .. "\n"
     end
-    M.ContextEngine:clear_ctx()
+
     return lines
 end
 
