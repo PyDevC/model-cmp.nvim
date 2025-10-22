@@ -1,6 +1,8 @@
 set noswapfile
 set rtp+=.
-set rtp+=../plenary.nvim/
+set rtp+=../plenary.nvim
+set rtp+=~/.local/share/nvim/lazy/nvim-treesitter
 
 runtime! plugin/plenary.vim
-runtime! plugin/model_cmp.lua
+runtime! plugin/nvim-treesitter.lua
+runtime! plugin/model-cmp.lua
