@@ -4,7 +4,7 @@ local utils = require("model_cmp.utils")
 ---@class ModelCmp.VitualText
 ---@field aug_id integer augroup id
 ---@field ns_id integer namespace id
----@field ext_ids integer[] extmark ids
+---@field ext_ids integer extmark id
 
 ---@class CaptureText
 ---@field contents string[]
@@ -25,20 +25,21 @@ M.CaptureText = {
 M.VirtualText = {
     aug_id = M.augroup,
     ns_id = M.ns_id,
-    ext_ids = {},
+    ext_ids = nil,
 }
 
 function M.VirtualText:clear_preview()
-    for ext_id in pairs(self.ext_ids) do
-        vim.api.nvim_buf_del_extmark(0, self.ns_id, ext_id)
+    if self.ext_ids == nil then
+        return
     end
-    self.ext_ids = {}
+    vim.api.nvim_buf_del_extmark(0, self.ns_id, self.ext_ids)
+    self.ext_ids = nil
 end
 
 ---@param text string
 function M.VirtualText:update_preview(text)
     -- Checking all conditions before running update preview
-    if #self.ext_ids > 0 then
+    if self.ext_ids ~= nil then
         require("model_cmp.logger").info("clearning preview")
         self:clear_preview()
     end
@@ -68,29 +69,21 @@ function M.VirtualText:update_preview(text)
     self.ns_id = ns_id
 
     local curr = vim.api.nvim_get_current_line()
-    local suggestion, col_num = utils.adjust_suggestion(curr, lines[1])
-    local extmark_id = 1
-    vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, col_num - 1, {
-        id = extmark_id,
-        virt_text = { { suggestion, "CustomVirttextHighlight" } },
-        hl_mode = "combine",
-    })
-    table.insert(self.ext_ids, extmark_id)
 
-    if #lines == 1 then
-        return
-    end
-
-    for idx = 2, #lines do
-        local line_text = lines[idx]
-        extmark_id = idx
-        vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num + idx - 2, 0, {
-            id = extmark_id,
-            virt_text = { { line_text, "CustomVirttextHighlight" } },
-            right_gravity = true,
-            undo_restore = true,
-        })
-        table.insert(self.ext_ids, extmark_id)
+    for idx = 1, #lines do
+        local suggestion, col_num = utils.partial_match(curr, lines[idx])
+        if suggestion ~= nil and col_num ~= nil then
+            if suggestion ~= "" then
+                self.ext_ids = idx
+                vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, col_num, {
+                    id = idx,
+                    virt_text = { { suggestion, "CustomVirttextHighlight" } },
+                    right_gravity = true,
+                    undo_restore = true,
+                })
+                return
+            end
+        end
     end
 end
 

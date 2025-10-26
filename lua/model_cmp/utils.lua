@@ -49,48 +49,44 @@ end
 ---@param currline string
 ---@param suggestion string
 ---@return string, integer
----Longest Common Suffix
-local function lcs(currline, suggestion)
-    if currline == suggestion or not currline or not suggestion then
-        return "", 0
+local function get_suffix_if_prefix(currline, suggestion)
+    if not currline or not suggestion or #currline == 0 then
+        return suggestion or "", 1
     end
+
     local l1 = #currline
     local l2 = #suggestion
 
     if l1 > l2 then
-        return lcs(suggestion, currline)
-    end
-
-    local lcp_length = 0
-    for i = 1, l1 do
-        if currline:sub(i, i) == suggestion:sub(i, i) then
-            lcp_length = i
-        else
-            break
-        end
-    end
-    local lcs_length = 0
-    for i = 1, l1 - lcp_length do
-        local index1 = l1 - i + 1
-        local index2 = l2 - i + 1
-
-        if currline:sub(index1, index1) == suggestion:sub(index2, index2) then
-            lcs_length = i
-        else
-            break
-        end
-    end
-    local start_index = lcp_length + 1
-    local end_index = l2 - lcs_length
-    if start_index > end_index then
         return "", 0
     end
-    return suggestion:sub(start_index, end_index), start_index
+
+    if suggestion:sub(1, l1) == currline then
+        if l1 == l2 then
+            return "", l2 + 1
+        end
+
+        local remaining_suffix = suggestion:sub(l1 + 1)
+        return remaining_suffix, l1 + 1
+    else
+        return "", 0
+    end
+end
+
+---@param curr string
+---@param suggestion string
+function M.partial_match(curr, suggestion)
+    if curr == suggestion then
+        return
+    end
+    if suggestion:sub(1, #curr) == curr then
+        return suggestion:sub(#curr + 1), #curr
+    end
 end
 
 ---@param suggestion string
 function M.adjust_suggestion(curr, suggestion)
-    return lcs(curr, suggestion)
+    return get_suffix_if_prefix(curr, suggestion)
 end
 
 return M
