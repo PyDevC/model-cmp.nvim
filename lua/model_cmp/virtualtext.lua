@@ -17,7 +17,7 @@ M.ns_id = vim.api.nvim_create_namespace("model_cmp.virtualtext")
 M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true })
 
 M.CaptureText = {
-    contents = {},
+    content = nil,
     bufferid = 0,
     line_number = nil,
 }
@@ -54,6 +54,7 @@ function M.VirtualText:update_preview(text)
     local cursor = vim.api.nvim_win_get_cursor(0) -- {line, col}
     local current_line_num = cursor[1]
     M.CaptureText.line_number = current_line_num
+    M.CaptureText.bufferid = vim.api.nvim_get_current_buf()
 
     vim.b.cursor = cursor
 
@@ -63,7 +64,6 @@ function M.VirtualText:update_preview(text)
             table.insert(lines, line)
         end
     end
-    M.CaptureText.contents = lines
 
     local ns_id = self.ns_id or vim.api.nvim_create_namespace("MyPluginVirtualText")
     self.ns_id = ns_id
@@ -74,6 +74,7 @@ function M.VirtualText:update_preview(text)
         local suggestion, col_num = utils.partial_match(curr, lines[idx])
         if suggestion ~= nil and col_num ~= nil then
             if suggestion ~= "" then
+                M.CaptureText.content = lines[idx]
                 self.ext_ids = idx
                 vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, col_num, {
                     id = idx,
@@ -100,7 +101,7 @@ local action = {}
 function action.capturefirstline()
     -- TODO: check for buffer
     local currline = vim.fn.line(".")
-    vim.api.nvim_buf_set_lines(0, currline - 1, currline, false, { M.CaptureText.contents[1] })
+    vim.api.nvim_buf_set_lines(0, currline - 1, currline, false, { M.CaptureText.content })
 end
 
 function action.capturealllines() end
