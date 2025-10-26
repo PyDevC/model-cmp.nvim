@@ -76,11 +76,22 @@ end
 ---@param curr string
 ---@param suggestion string
 function M.partial_match(curr, suggestion)
+    local original_len = #curr
+    local prefix = suggestion:match("^[ \t]")
+
+    if prefix == nil then
+        prefix = ""
+    end
+
+    curr = curr:match("^%s*(.*)")
+    suggestion = suggestion:match("^%s*(.*)")
+
     if curr == suggestion then
         return
     end
+
     if suggestion:sub(1, #curr) == curr then
-        return suggestion:sub(#curr + 1), #curr
+        return prefix .. suggestion:sub(#curr + 1), original_len
     end
 end
 

@@ -84,7 +84,7 @@ local function node_to_line_array(node_text)
 end
 
 local function add_missing_tag(line, cursor)
-    local missing = string.sub(line, 1, cursor[2]) .. "<missing>" .. string.sub(line, cursor[2] + 1, -1)
+    local missing = string.sub(line, 1, cursor[2]) .. "<missing>" .. string.sub(line, cursor[2] + 1)
     return missing
 end
 
@@ -102,7 +102,7 @@ function M.ContextEngine:generate_context_text()
     local currentline = vim.api.nvim_buf_get_lines(self.bufnr, self.cursor[1] - 1, self.cursor[1] + 1, false)
 
     for i, _ in ipairs(lines_list) do
-        if i == self.cursor[1] then
+        if lines_list[i] == currentline[1] then
             lines_list[i] = add_missing_tag(currentline[1], self.cursor)
         end
     end
