@@ -2,7 +2,7 @@ local M = {}
 
 ---@class ctx
 ---@field scopes TSNode[] Scopes of each function around the cursor
----@field current string[] Current line the cursor is at
+---@field globals string[] Current line the cursor is at
 ---@field imports string[] This is related to Lsp stuff so we are going to integrate this in future
 
 ---@class ModelCmp.ContextEngine
@@ -16,7 +16,7 @@ M.ContextEngine = {
     lang = "text",
     ctx = {
         scopes = {},
-        current = {},
+        globals = {},
         imports = {},
     },
 }
@@ -24,7 +24,7 @@ M.ContextEngine = {
 function M.ContextEngine:clear_ctx()
     self.ctx = {
         scopes = {},
-        current = {},
+        globals = {},
         imports = {},
     }
 end
@@ -40,23 +40,44 @@ function M.ContextEngine:get_root()
     return tree:root()
 end
 
-function M.ContextEngine:get_scopes_and_ranges()
-    local scope_query = "context-scope"
-    local ok, query = pcall(vim.treesitter.query.get, self.lang, scope_query)
+function M.ContextEngine:get_nodes_from_query(which_query)
+    local ok, query = pcall(vim.treesitter.query.get, self.lang, which_query)
 
     if not ok or query == nil then
         return {}
     end
 
     local root = self:get_root()
+    local return_nodes = {}
 
     for _, match, _ in query:iter_matches(root, self.bufnr, 0, -1, { all = true }) do
         for _, nodes in pairs(match) do
             for _, node in ipairs(nodes) do
-                table.insert(self.ctx.scopes, node)
+                table.insert(return_nodes, node)
             end
         end
     end
+    return return_nodes
+end
+
+function M.ContextEngine:get_scopes_and_ranges()
+    local scope_query = "context-scope"
+    self.ctx.scopes = self:get_nodes_from_query(scope_query)
+    if #self.ctx.scopes == 0 then
+        scope_query = "context-all"
+        self.ctx.scopes = self:get_nodes_from_query(scope_query)
+        print("Hello")
+    end
+end
+
+function M.ContextEngine:get_imports()
+    local import_query = "context-import"
+    self.ctx.imports = self:get_nodes_from_query(import_query)
+end
+
+function M.ContextEngine:get_globals()
+    local global_query = "context-globals"
+    self.ctx.imports = self:get_nodes_from_query(global_query)
 end
 
 function M.ContextEngine:get_ctx()
@@ -64,6 +85,8 @@ function M.ContextEngine:get_ctx()
     self.cursor = vim.api.nvim_win_get_cursor(0)
     self.lang = vim.bo.ft
     self:get_scopes_and_ranges()
+    self:get_imports()
+    self:get_globals()
 end
 
 ---@param node TSNode
@@ -112,6 +135,7 @@ function M.ContextEngine:generate_context_text()
         lines = lines .. k .. "\n"
     end
 
+    print(lines)
     return lines
 end
 
