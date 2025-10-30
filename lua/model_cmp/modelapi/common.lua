@@ -67,6 +67,7 @@ function M.send_request()
             text = utils.decode_response(response, type)
             if text == nil or text == "" then
                 req.remove_request()
+                return
             end
             virtualtext.VirtualText:update_preview(text)
         end)

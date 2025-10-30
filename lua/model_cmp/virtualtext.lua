@@ -43,17 +43,19 @@ function M.VirtualText:update_preview(text)
         require("model_cmp.logger").info("clearning preview")
         self:clear_preview()
     end
-    if not vim.g.model_cmp_virtualtext_auto_trigger or text == nil or text == "" then
+
+    if not vim.g.model_cmp_virtualtext_auto_trigger then
         return
     end
+
     if vim.fn.mode() ~= "i" or vim.g.model_cmp_set_nomode == true then
         return
     end
+
     require("model_cmp.logger").trace("updating preview")
 
     local cursor = vim.api.nvim_win_get_cursor(0) -- {line, col}
-    local current_line_num = cursor[1]
-    M.CaptureText.line_number = current_line_num
+    M.CaptureText.line_number = cursor[1]
     M.CaptureText.bufferid = vim.api.nvim_get_current_buf()
 
     vim.b.cursor = cursor
@@ -74,13 +76,13 @@ function M.VirtualText:update_preview(text)
         local suggestion, col_num = utils.partial_match(curr, lines[idx])
         if suggestion ~= nil and col_num ~= nil then
             if suggestion ~= "" then
-                M.CaptureText.content = lines[idx]
+                M.CaptureText.content = utils.adjust_suggestion(curr, suggestion)
                 self.ext_ids = idx
-                vim.api.nvim_buf_set_extmark(0, ns_id, current_line_num - 1, col_num, {
+                vim.api.nvim_buf_set_extmark(0, ns_id, cursor[1] - 1, col_num, {
                     id = idx,
                     virt_text = { { suggestion, "CustomVirttextHighlight" } },
-                    right_gravity = true,
                     undo_restore = true,
+                    virt_text_pos = "overlay",
                 })
                 return
             end

@@ -8,14 +8,17 @@ vim.g.server_error_count = 0
 ---@param type string type of server running
 function M.decode_response(response, type)
     local ok, response_table = pcall(vim.fn.json_decode, response)
+
     if not ok or response_table == nil then
         return
     end
+
     if response_table.error ~= nil then
         logger.warning("response has error")
         vim.g.server_error_count = vim.g.server_error_count + 1
         return
     end
+
     if type == "gemini" then
         if response_table.candidates[1].content.parts[1].text == nil then
             return
@@ -46,58 +49,26 @@ function M.parse_messages(input)
     return messages
 end
 
----@param currline string
----@param suggestion string
----@return string, integer
-local function get_suffix_if_prefix(currline, suggestion)
-    if not currline or not suggestion or #currline == 0 then
-        return suggestion or "", 1
-    end
-
-    local l1 = #currline
-    local l2 = #suggestion
-
-    if l1 > l2 then
-        return "", 0
-    end
-
-    if suggestion:sub(1, l1) == currline then
-        if l1 == l2 then
-            return "", l2 + 1
-        end
-
-        local remaining_suffix = suggestion:sub(l1 + 1)
-        return remaining_suffix, l1 + 1
-    else
-        return "", 0
-    end
-end
-
 ---@param curr string
 ---@param suggestion string
 function M.partial_match(curr, suggestion)
     local original_len = #curr
-    local prefix = suggestion:match("^[ \t]")
-
-    if prefix == nil then
-        prefix = ""
-    end
 
     curr = curr:match("^%s*(.*)")
     suggestion = suggestion:match("^%s*(.*)")
 
-    if curr == suggestion then
+    if curr == nil or suggestion == nil or curr == suggestion then
         return
     end
 
     if suggestion:sub(1, #curr) == curr then
-        return prefix .. suggestion:sub(#curr + 1), original_len
+        return suggestion:sub(#curr + 1), original_len
     end
 end
 
 ---@param suggestion string
 function M.adjust_suggestion(curr, suggestion)
-    return get_suffix_if_prefix(curr, suggestion)
+    return curr .. suggestion
 end
 
 return M

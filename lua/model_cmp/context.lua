@@ -66,7 +66,6 @@ function M.ContextEngine:get_scopes_and_ranges()
     if #self.ctx.scopes == 0 then
         scope_query = "context-all"
         self.ctx.scopes = self:get_nodes_from_query(scope_query)
-        print("Hello")
     end
 end
 
@@ -135,7 +134,6 @@ function M.ContextEngine:generate_context_text()
         lines = lines .. k .. "\n"
     end
 
-    print(lines)
     return lines
 end
 
