@@ -60,6 +60,8 @@ function M.send_request()
         return
     end
 
+    virtualtext.CaptureText.virtual_save = ""
+
     req.send(request, function(response)
         vim.schedule(function()
             local text
@@ -69,6 +71,7 @@ function M.send_request()
                 req.remove_request()
                 return
             end
+            virtualtext.CaptureText.virtual_save = text
             virtualtext.VirtualText:update_preview(text)
         end)
     end)

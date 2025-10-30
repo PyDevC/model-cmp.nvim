@@ -1,4 +1,5 @@
 local api = require("model_cmp.modelapi.common")
+local virt = require("model_cmp.virtualtext")
 local logger = require("model_cmp.logger")
 local config = require("model_cmp.config")
 local uv = vim.uv
@@ -28,20 +29,31 @@ local function virtualtext_create_autocmds(group)
             if vim.g.model_cmp_connection_server == nil then
                 return
             end
+
             if vim.g.server_error_count == config.requests.max_retries then
                 if vim.g.model_cmp_connection_server == nil then
                     return
                 end
+
                 vim.g.model_cmp_connection_server = nil
                 error(
                     "There is something wrong with your server setup,"
-                        .. " please check your logs before doing anything :ModelCmpLogs"
+                    .. " please check your logs before doing anything :ModelCmpLogs"
                 )
+
                 return
             end
-            if not check_editing_space(event) or M.timer:is_active() or vim.fn.mode() ~= "i" then
+
+            if not check_editing_space(event) or vim.fn.mode() ~= "i" then
                 return
             end
+
+            if M.timer:is_active() then
+                local virtual_saves = virt.CaptureText.virtual_save
+                virt.VirtualText:update_preview(virtual_saves)
+                return
+            end
+
             M.timer:start(1000, 0, function() end)
             api.send_request()
         end,
@@ -158,7 +170,7 @@ local function create_usercmds()
         vim.api.nvim_set_current_buf(newbuf)
         vim.api.nvim_buf_set_option(newbuf, "bufhidden", "wipe") -- Close buffer when window is closed
         vim.api.nvim_buf_set_option(newbuf, "buftype", "nofile") -- Not a file buffer
-        vim.api.nvim_buf_set_option(newbuf, "swapfile", false) -- No swap file
+        vim.api.nvim_buf_set_option(newbuf, "swapfile", false)   -- No swap file
         vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.Logs)
         vim.api.nvim_buf_set_option(newbuf, "modifiable", false) -- Make it read-only
     end, {})

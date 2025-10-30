@@ -8,6 +8,7 @@ local utils = require("model_cmp.utils")
 
 ---@class CaptureText
 ---@field contents string[]
+---@field virtual_save string
 ---@field bufferid integer
 ---@field line_number integer
 
@@ -18,6 +19,7 @@ M.augroup = vim.api.nvim_create_augroup("model_cmp_virtualtext", { clear = true 
 
 M.CaptureText = {
     content = nil,
+    virtual_save = "",
     bufferid = 0,
     line_number = nil,
 }
