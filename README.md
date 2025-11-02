@@ -1,8 +1,12 @@
 # Model-cmp.nvim
 
-AI autocomplete plugin.
+AI autocomplete with Treesitter Context Engine, and Local LLM and GEMINI Support.
 
-Official first Release date: 9 Sep 2025
+Model-cmp uses various features of neovim to Deliver AI autocompletion features by predicting the current line text.
+We use Treesitter deeply to generate Context around the cursor (Treesitter implementation of Context Engine is under development).
+We use Few shot prompting to get custom suggestions from the LLM.
+
+You can use which ever LLM you want till its on port you specified in your config.
 
 ## Installation
 
