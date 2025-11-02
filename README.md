@@ -7,6 +7,9 @@ We use Treesitter deeply to generate Context around the cursor (Treesitter imple
 We use Few shot prompting to get custom suggestions from the LLM.
 
 You can use which ever LLM you want till its on port you specified in your config.
+<img width="1920" height="1080" alt="2025-11-02-081401_hyprshot" src="https://github.com/user-attachments/assets/94f4ca25-cfa8-403a-9dfe-dc2177f57c1c" />
+<img width="1920" height="1080" alt="2025-11-02-081433_hyprshot" src="https://github.com/user-attachments/assets/15d1daa3-d26d-4749-a637-6e6849ada351" />
+
 
 ## Installation
 
