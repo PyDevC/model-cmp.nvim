@@ -1,5 +1,7 @@
 .PHONY: test fmt lint ready-commit
 
+simple: test fmt lint
+
 all: test fmt lint ready-commit
 
 test:
