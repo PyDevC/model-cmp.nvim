@@ -10,22 +10,24 @@ function M.decode_response(response, type)
     local ok, response_table = pcall(vim.fn.json_decode, response)
 
     if not ok or response_table == nil then
+        logger.warning("Error decoding response")
         return
     end
 
     if response_table.error ~= nil then
-        logger.warning("response has error")
         vim.g.server_error_count = vim.g.server_error_count + 1
         return
     end
 
     if type == "gemini" then
-        if response_table.candidates[1].content.parts[1].text == nil then
+        if response_table.candidates[1].content == nil or response_table.candidates[1].content.parts[1].text == nil then
+            logger.warning("Error no candidates available")
             return
         end
         return response_table.candidates[1].content.parts[1].text
     elseif type == "local_llama" then
         if response_table.choices[1].message.content == nil then
+            logger.warning("Error no content available")
             return
         end
         return response_table.choices[1].message.content
@@ -62,6 +64,7 @@ function M.partial_match(curr, suggestion)
     end
 
     if suggestion:sub(1, #curr) == curr then
+        logger.debugging("partial_match: suggestion: ", suggestion:sub(#curr + 1))
         return suggestion:sub(#curr + 1), original_len
     end
 end
