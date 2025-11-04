@@ -123,6 +123,10 @@ function M.ContextEngine:generate_context_text()
     local lines_list = node_to_line_array(lines)
     local currentline = vim.api.nvim_buf_get_lines(self.bufnr, self.cursor[1] - 1, self.cursor[1] + 1, false)
 
+    if #lines_list == 0 then
+        lines_list = vim.api.nvim_buf_get_lines(self.bufnr, 1, -1, false)
+    end
+
     for i, _ in ipairs(lines_list) do
         if lines_list[i] == currentline[1] then
             lines_list[i] = add_missing_tag(currentline[1], self.cursor)
