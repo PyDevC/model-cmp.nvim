@@ -106,6 +106,7 @@ function action.capturefirstline()
     -- TODO: check for buffer
     local currline = vim.fn.line(".")
     vim.api.nvim_buf_set_lines(0, currline - 1, currline, false, { M.CaptureText.content })
+    vim.api.nvim_win_set_cursor(0, { currline, #M.CaptureText.content + 1 })
 end
 
 function action.capturealllines() end
