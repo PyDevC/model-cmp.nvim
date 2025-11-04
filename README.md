@@ -67,11 +67,14 @@ return {
   "PyDevC/model-cmp.nvim",
   config = function()
     require("model_cmp").setup({
-      delay = 1000, -- 1 sec delay
-
+      requests = {
+        delay_ms = 1000,
+        max_retries = 5,
+        timeout_ms = 300000,
+      },
       api = {
         apikeys = {
-            GEMINI_API_KEY = "<your-key>"
+          GEMINI_API_KEY = "<your-key>"
         }
         custom_url = {
           url = "http://127.0.0.1",
