@@ -11,6 +11,10 @@ You can use which ever LLM you want till its on port you specified in your confi
 <img width="1920" height="1080" alt="2025-11-02-081433_hyprshot" src="https://github.com/user-attachments/assets/15d1daa3-d26d-4749-a637-6e6849ada351" />
 
 
+https://github.com/user-attachments/assets/857e3268-5e52-498f-a8cb-39e138567d6d
+
+
+
 ## Installation
 
 Before installing the plugin, please make sure you have following pre-requisities:
