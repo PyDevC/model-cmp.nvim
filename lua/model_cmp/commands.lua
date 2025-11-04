@@ -38,7 +38,7 @@ local function virtualtext_create_autocmds(group)
                 vim.g.model_cmp_connection_server = nil
                 error(
                     "There is something wrong with your server setup,"
-                    .. " please check your logs before doing anything :ModelCmpLogs"
+                        .. " please check your logs before doing anything :ModelCmpLogs"
                 )
 
                 return
@@ -54,7 +54,7 @@ local function virtualtext_create_autocmds(group)
                 return
             end
 
-            M.timer:start(1000, 0, function() end)
+            M.timer:start(config.requests.delay_ms, 0, function() end) -- start the timer according to delay
             api.send_request()
         end,
     })
@@ -170,7 +170,7 @@ local function create_usercmds()
         vim.api.nvim_set_current_buf(newbuf)
         vim.api.nvim_buf_set_option(newbuf, "bufhidden", "wipe") -- Close buffer when window is closed
         vim.api.nvim_buf_set_option(newbuf, "buftype", "nofile") -- Not a file buffer
-        vim.api.nvim_buf_set_option(newbuf, "swapfile", false)   -- No swap file
+        vim.api.nvim_buf_set_option(newbuf, "swapfile", false) -- No swap file
         vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.Logs)
         vim.api.nvim_buf_set_option(newbuf, "modifiable", false) -- Make it read-only
     end, {})
