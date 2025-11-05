@@ -53,19 +53,38 @@ end
 
 ---@param curr string
 ---@param suggestion string
-function M.partial_match(curr, suggestion)
-    local original_len = #curr
+function M.partial_match(curr, suggestion, cursor)
+    -- Extract prefix from current line
+    local prefix = curr:sub(1, cursor[2])
+    local suffix = nil
+    local original_len = #prefix
 
+    -- Triming all blank spaces
     curr = curr:match("^%s*(.*)")
+    prefix = prefix:match("^%s*(.*)")
     suggestion = suggestion:match("^%s*(.*)")
 
-    if curr == nil or suggestion == nil or curr == suggestion then
+    -- if prefix is not equal to suffix after triming then there must be suffix
+    if prefix ~= curr then
+        local s, e = string.find(curr, prefix)
+        if s then
+            suffix = curr:sub(e, -1)
+        end
+    end
+
+    if prefix == nil or suggestion == nil or curr == suggestion then
         return
     end
 
-    if suggestion:sub(1, #curr) == curr then
-        logger.debugging("partial_match: suggestion: ", suggestion:sub(#curr + 1))
-        return suggestion:sub(#curr + 1), original_len
+    if suggestion:sub(1, #prefix) == prefix then
+        local virtual_suggestion = suggestion:sub(1, #prefix)
+        if suffix then
+            local s, _ = string.find(virtual_suggestion, suffix)
+            if not s then
+                return
+            end
+        end
+        return suggestion:sub(#prefix + 1), original_len
     end
 end
 

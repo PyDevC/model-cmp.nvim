@@ -33,6 +33,7 @@ end
 ---@return LogInstance
 local function log_template()
     local log = {
+
         type = vim.log.levels.OFF,
         message = "",
     }

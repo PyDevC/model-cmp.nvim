@@ -75,7 +75,7 @@ function M.VirtualText:update_preview(text)
     local curr = vim.api.nvim_get_current_line()
 
     for idx = 1, #lines do
-        local suggestion, col_num = utils.partial_match(curr, lines[idx])
+        local suggestion, col_num = utils.partial_match(curr, lines[idx], cursor)
         if suggestion ~= nil and col_num ~= nil then
             if suggestion ~= "" then
                 M.CaptureText.content = utils.adjust_suggestion(curr, suggestion)
