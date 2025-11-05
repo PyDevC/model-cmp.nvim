@@ -78,7 +78,7 @@ function M.VirtualText:update_preview(text)
         local suggestion, col_num = utils.partial_match(curr, lines[idx], cursor)
         if suggestion ~= nil and col_num ~= nil then
             if suggestion ~= "" then
-                M.CaptureText.content = utils.adjust_suggestion(curr, suggestion)
+                M.CaptureText.content = utils.adjust_suggestion(curr, suggestion, col_num)
                 self.ext_ids = idx
                 vim.api.nvim_buf_set_extmark(0, ns_id, cursor[1] - 1, col_num, {
                     id = idx,

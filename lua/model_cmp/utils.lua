@@ -88,9 +88,12 @@ function M.partial_match(curr, suggestion, cursor)
     end
 end
 
----@param suggestion string
-function M.adjust_suggestion(curr, suggestion)
-    return curr .. suggestion
+---@param virtual_suggestion string virtual_suggestion that was displayed
+---@param curr string current line
+---@param original_len number length of prefix
+function M.adjust_suggestion(curr, virtual_suggestion, original_len)
+    local prefix = curr:sub(1, original_len)
+    return prefix .. virtual_suggestion
 end
 
 return M
