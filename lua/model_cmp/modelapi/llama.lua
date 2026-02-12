@@ -1,4 +1,5 @@
 local apiconfig = require("model_cmp.modelapi.apiconfig")
+local config = require("model_cmp.config")
 
 local M = {}
 
@@ -31,7 +32,7 @@ function M.generate_request(prompt)
         "-s",
         "-X",
         "POST",
-        generate_url(custom.custom_url),
+        generate_url(config.api.custom_url),
         "-H",
         "Content-Type: application/json",
         "-d",
