@@ -1,4 +1,4 @@
-local apiconfig = require("model_cmp.modelapi.apiconfig")
+local config = require("model_cmp.config")
 
 local M = {}
 
@@ -13,7 +13,6 @@ end
 
 ---@param prompt Prompt
 function M.generate_request(prompt)
-    local custom = apiconfig.default
 
     local messages = { prompt.systemrole }
     if prompt.language ~= "text" then
@@ -31,7 +30,7 @@ function M.generate_request(prompt)
         "-s",
         "-X",
         "POST",
-        generate_url(custom.custom_url),
+        generate_url(config.api.custom_url),
         "-H",
         "Content-Type: application/json",
         "-d",
