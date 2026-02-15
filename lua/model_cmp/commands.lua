@@ -77,15 +77,9 @@ local function virtualtext_create_autocmds(group)
     })
 end
 
-local function create_usercmds()
-    vim.api.nvim_create_user_command("ModelCmp", function(args)
-        args = args.fargs
-        if #args == 0 or args == nil then
-            return
-        end
-        local virtualtext = require("model_cmp.virtualtext")
-
+function M.load_actions(args)
         local actions = {}
+        local virtualtext = require("model_cmp.virtualtext")
         actions.virtualtext = {
             enable = function()
                 virtualtext.action.enable_auto_trigger()
@@ -113,25 +107,9 @@ local function create_usercmds()
             end,
         }
         actions[args[1]][args[2]]()
-    end, {
-        nargs = "+",
-        complete = function(_, cmdline, _)
-            cmdline = cmdline or ""
+end
 
-            if cmdline:find("virtualtext") then
-                return {
-                    "enable",
-                    "disable",
-                    "toggle",
-                }
-            end
-            if cmdline:find("capture") then
-                return { "first", "all" }
-            end
-            return { "virtualtext", "capture", "server" }
-        end,
-    })
-
+local function create_usercmds()
     vim.api.nvim_create_user_command("ModelCmpStart", function(args)
         args = args.fargs
         local servers = {
