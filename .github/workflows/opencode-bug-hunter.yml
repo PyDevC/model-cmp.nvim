@@ -18,15 +18,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install OpenCode CLI
-        run: |
-          curl -fsSL https://opencode.ai/install | bash
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
       - name: Run OpenCode Bug Review
+        uses: anomalyco/opencode/github@latest
         env:
           # Authenticates the CLI with the OpenCode Zen hosted service
           OPENCODE_ZEN_TOKEN: ${{ secrets.OPENCODE_ZEN_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          opencode --model opencode/big-pickle --prompt "Review the codebase for functional bugs or logic errors. If you detect distinct, verified bugs, use your GitHub tool access to create individual GitHub issues containing file paths and line numbers."
+        with:
+          model: opencode/big-pickle
+          prompt: |
+              Review the codebase for functional bugs or logic errors. If you detect distinct, verified bugs, use your GitHub tool access to create individual GitHub issues containing file paths and line numbers.
