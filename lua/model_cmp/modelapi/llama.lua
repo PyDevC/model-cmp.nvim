@@ -40,7 +40,7 @@ function M.generate_request(prompt)
             n_predict = 128,
             temperature = 0.1,
             stop = { "</s>" },
-            max_token = 50,
+            max_tokens = 50,
         }),
     }
     return request
