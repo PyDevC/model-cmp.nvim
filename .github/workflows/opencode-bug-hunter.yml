@@ -20,7 +20,7 @@ jobs:
 
       - name: Install OpenCode CLI
         run: |
-          curl -fsSL https://open-code.ai/install.sh | bash
+          curl -fsSL https://opencode.ai/install | bash
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Run OpenCode Bug Review
