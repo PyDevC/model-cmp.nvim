@@ -29,6 +29,4 @@ jobs:
           OPENCODE_ZEN_TOKEN: ${{ secrets.OPENCODE_ZEN_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          opencode run \
-            --model opencode/big-pickle \
-            --prompt "Review the codebase for functional bugs or logic errors. If you detect distinct, verified bugs, use your GitHub tool access to create individual GitHub issues containing file paths and line numbers."
+          opencode --model opencode/big-pickle --prompt "Review the codebase for functional bugs or logic errors. If you detect distinct, verified bugs, use your GitHub tool access to create individual GitHub issues containing file paths and line numbers."
