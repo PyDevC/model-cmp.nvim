@@ -1,0 +1,34 @@
+name: OpenCode Bug Hunter (Zen Free Tier)
+
+on:
+  schedule:
+    - cron: "0 0 * * 1" # Runs every Monday at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  review-and-report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://open-code.ai/install.sh | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Run OpenCode Bug Review
+        env:
+          # Authenticates the CLI with the OpenCode Zen hosted service
+          OPENCODE_ZEN_TOKEN: ${{ secrets.OPENCODE_ZEN_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          opencode run \
+            --model opencode/big-pickle \
+            --prompt "Review the codebase for functional bugs or logic errors. If you detect distinct, verified bugs, use your GitHub tool access to create individual GitHub issues containing file paths and line numbers."
