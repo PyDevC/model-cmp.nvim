@@ -13,7 +13,7 @@ local M = {}
 
 vim.g.model_cmp_connection_server = nil
 
-local available_keys = {
+M.available_keys = {
     GEMINI_API_KEY = 0,
 }
 
@@ -21,15 +21,7 @@ local function check_available()
     for keyname, key in pairs(config.api.apikeys) do
         local envkey = os.getenv(keyname)
         if key ~= "" or envkey ~= "" then
-            available_keys[keyname] = 1
-        end
-    end
-
-    if M.custom_url ~= nil then
-        if M.custom_url.url == "" or M.custom_url.port == "" then
-            M.custom_url = { url = "http://127.0.0.1", port = "8080" }
-        else
-            M.custom_url = config.api.custom_url
+            M.available_keys[keyname] = 1
         end
     end
 end
@@ -49,7 +41,7 @@ function M.send_request()
     if server == "local_llama" then
         request = llama.generate_request(prompt)
     elseif server == "gemini" then
-        if available_keys.GEMINI_API_KEY ~= 1 then
+        if M.available_keys.GEMINI_API_KEY ~= 1 then
             logger.error("GEMINI_API_KEY is not set")
             return
         end
