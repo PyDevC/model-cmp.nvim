@@ -30,7 +30,7 @@ local function virtualtext_create_autocmds(group)
                 return
             end
 
-            if vim.g.server_error_count == config.requests.max_retries then
+            if vim.g.server_error_count >= config.requests.max_retries then
                 if vim.g.model_cmp_connection_server == nil then
                     return
                 end
