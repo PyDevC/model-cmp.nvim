@@ -76,7 +76,7 @@ end
 
 function M.ContextEngine:get_globals()
     local global_query = "context-globals"
-    self.ctx.imports = self:get_nodes_from_query(global_query)
+    self.ctx.globals = self:get_nodes_from_query(global_query)
 end
 
 function M.ContextEngine:get_ctx()
@@ -116,7 +116,7 @@ function M.ContextEngine:generate_context_text()
 
     for _, k in ipairs(self.ctx.scopes) do
         if scopes_inrange(k, self.cursor) then
-            lines = vim.treesitter.get_node_text(k, self.bufnr)
+            lines = lines .. vim.treesitter.get_node_text(k, self.bufnr)
         end
     end
 
