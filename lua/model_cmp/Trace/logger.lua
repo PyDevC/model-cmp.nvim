@@ -29,7 +29,7 @@ end
 
 -- Log a message in the logcache at loglevel
 function Logger:log(level, message, args)
-    if self.level > level then
+    if self.level < level then
         return
     end
 
@@ -42,7 +42,7 @@ function Logger:log(level, message, args)
         args()
     end
 
-    table.insert(cache, log_statement.level .. log_statement.message .. "\n")
+    table.insert(cache, log_statement.level .. ": " .. log_statement.message .. "\n")
 end
 
 function Logger:warn(msg, ...)
@@ -61,12 +61,17 @@ function Logger:error(msg, ...)
     self:log(loglevel.ERROR, msg, ...)
 end
 
-function Logger.save()
-    local path = vim.fn.stdpath("log") .. "/model_cmp.log"
+function Logger:save(filename)
+    filename = filename or "model_cmp.log"
+    local path = vim.fn.stdpath("log") .. "/" .. filename
     local fd, err = vim.uv.fs_open(path, "w", 420)
     if not fd then
         error("Coudn't create log file" .. err)
     end
+
+    local timestamp_string = "[" .. self.timestamp .. "]\n"
+
+    vim.uv.fs_write(fd, timestamp_string)
 
     vim.uv.fs_write(fd, cache)
     vim.uv.fs_fsync(fd)

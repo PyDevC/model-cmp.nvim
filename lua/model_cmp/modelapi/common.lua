@@ -60,7 +60,6 @@ function M.send_request()
             local type = vim.g.model_cmp_connection_server
             text = utils.decode_response(response, type)
             if text == nil or text == "" then
-                req.remove_request()
                 return
             end
             virtualtext.CaptureText.virtual_save = text
