@@ -1,3 +1,4 @@
+local logger = require("model_cmp.Trace.logger")
 local config = require("model_cmp.config")
 local utils = require("model_cmp.utils")
 
@@ -42,7 +43,7 @@ end
 function M.VirtualText:update_preview(text)
     -- Checking all conditions before running update preview
     if self.ext_ids ~= nil then
-        require("model_cmp.logger").info("clearning preview")
+        logger:info("clearning preview")
         self:clear_preview()
     end
 
@@ -54,7 +55,7 @@ function M.VirtualText:update_preview(text)
         return
     end
 
-    require("model_cmp.logger").trace("updating preview")
+    logger:info("updating preview")
 
     local cursor = vim.api.nvim_win_get_cursor(0) -- {line, col}
     M.CaptureText.line_number = cursor[1]

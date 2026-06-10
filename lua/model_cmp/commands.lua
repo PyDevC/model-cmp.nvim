@@ -1,6 +1,6 @@
 local api = require("model_cmp.modelapi.common")
 local virt = require("model_cmp.virtualtext")
-local logger = require("model_cmp.logger")
+local logger = require("model_cmp.Trace.logger")
 local config = require("model_cmp.config")
 local uv = vim.uv
 
@@ -38,7 +38,7 @@ local function virtualtext_create_autocmds(group)
                 vim.g.model_cmp_connection_server = nil
                 error(
                     "There is something wrong with your server setup,"
-                        .. " please check your logs before doing anything :ModelCmpLogs"
+                    .. " please check your logs before doing anything :ModelCmpLogs"
                 )
 
                 return
@@ -72,41 +72,41 @@ local function virtualtext_create_autocmds(group)
     vim.api.nvim_create_autocmd({ "VimLeave" }, {
         group = group,
         callback = function()
-            logger.save_logs()
+            logger.save()
         end,
     })
 end
 
 function M.load_actions(args)
-        local actions = {}
-        local virtualtext = require("model_cmp.virtualtext")
-        actions.virtualtext = {
-            enable = function()
-                virtualtext.action.enable_auto_trigger()
-                M.VirtualAutoGrp = vim.api.nvim_create_augroup("model_cmp_virtualtext", {})
-                virtualtext_create_autocmds(M.VirtualAutoGrp)
-            end,
-            disable = function()
-                virtualtext.action.disable_auto_trigger()
-                vim.api.nvim_del_augroup_by_name("model_cmp_virtualtext")
-            end,
-            toggle = function()
-                virtualtext.action.toggle_auto_trigger()
-            end,
-        }
-        actions.server = {
-            local_server = function() end,
-            gemini = function() end,
-        }
-        actions.capture = {
-            first = function()
-                virtualtext.action.capturefirstline()
-            end,
-            all = function()
-                virtualtext.action.capturealllines()
-            end,
-        }
-        actions[args[1]][args[2]]()
+    local actions = {}
+    local virtualtext = require("model_cmp.virtualtext")
+    actions.virtualtext = {
+        enable = function()
+            virtualtext.action.enable_auto_trigger()
+            M.VirtualAutoGrp = vim.api.nvim_create_augroup("model_cmp_virtualtext", {})
+            virtualtext_create_autocmds(M.VirtualAutoGrp)
+        end,
+        disable = function()
+            virtualtext.action.disable_auto_trigger()
+            vim.api.nvim_del_augroup_by_name("model_cmp_virtualtext")
+        end,
+        toggle = function()
+            virtualtext.action.toggle_auto_trigger()
+        end,
+    }
+    actions.server = {
+        local_server = function() end,
+        gemini = function() end,
+    }
+    actions.capture = {
+        first = function()
+            virtualtext.action.capturefirstline()
+        end,
+        all = function()
+            virtualtext.action.capturealllines()
+        end,
+    }
+    actions[args[1]][args[2]]()
 end
 
 local function create_usercmds()
@@ -148,8 +148,8 @@ local function create_usercmds()
         vim.api.nvim_set_current_buf(newbuf)
         vim.api.nvim_buf_set_option(newbuf, "bufhidden", "wipe") -- Close buffer when window is closed
         vim.api.nvim_buf_set_option(newbuf, "buftype", "nofile") -- Not a file buffer
-        vim.api.nvim_buf_set_option(newbuf, "swapfile", false) -- No swap file
-        vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.Logs)
+        vim.api.nvim_buf_set_option(newbuf, "swapfile", false)   -- No swap file
+        vim.api.nvim_buf_set_lines(newbuf, 0, -1, false, logger.print_logs())
         vim.api.nvim_buf_set_option(newbuf, "modifiable", false) -- Make it read-only
     end, {})
 end

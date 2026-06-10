@@ -1,4 +1,4 @@
-local logger = require("model_cmp.logger")
+local logger = require("model_cmp.Trace.logger")
 
 local M = {}
 
@@ -10,7 +10,7 @@ function M.decode_response(response, type)
     local ok, response_table = pcall(vim.fn.json_decode, response)
 
     if not ok or response_table == nil then
-        logger.warning("Error decoding response")
+        logger:warn("Error decoding response")
         return
     end
 
@@ -21,13 +21,13 @@ function M.decode_response(response, type)
 
     if type == "gemini" then
         if response_table.candidates[1].content == nil or response_table.candidates[1].content.parts[1].text == nil then
-            logger.warning("Error no candidates available")
+            logger:warn("Error no candidates available")
             return
         end
         return response_table.candidates[1].content.parts[1].text
     elseif type == "local_llama" then
         if response_table.choices[1].message.content == nil then
-            logger.warning("Error no content available")
+            logger:warn("Error no content available")
             return
         end
         return response_table.choices[1].message.content

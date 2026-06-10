@@ -13,7 +13,6 @@ end
 
 ---@param prompt Prompt
 function M.generate_request(prompt)
-
     local messages = { prompt.systemrole }
     if prompt.language ~= "text" then
         for _, k in ipairs(prompt.fewshots) do

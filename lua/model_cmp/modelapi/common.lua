@@ -1,6 +1,6 @@
 local config = require("model_cmp.config")
 local context = require("model_cmp.context")
-local logger = require("model_cmp.logger")
+local logger = require("model_cmp.Trace.logger")
 local prompter = require("model_cmp.modelapi.prompt")
 local req = require("model_cmp.modelapi.request")
 local utils = require("model_cmp.utils")
@@ -35,14 +35,14 @@ function M.send_request()
 
     local server = vim.g.model_cmp_connection_server
     if server == nil then
-        logger.trace("NO server setup")
+        logger:debug("NO server setup")
         return
     end
     if server == "local_llama" then
         request = llama.generate_request(prompt)
     elseif server == "gemini" then
         if M.available_keys.GEMINI_API_KEY ~= 1 then
-            logger.error("GEMINI_API_KEY is not set")
+            logger:error("GEMINI_API_KEY is not set")
             return
         end
         request = gemini.generate_request(prompt)
