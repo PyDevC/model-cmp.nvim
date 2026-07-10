@@ -31,6 +31,7 @@ Before making any change first clone and test your repo by [checking test](#buil
 ```bash
 git clone https://github.com/PyDevC/model-cmp.nvim
 cd model-cmp.nvim
+make test
 ```
 
 Create a branch before writing any changes. The name of the branch should not be more than four words and should be kabab case. Ex: new-feature.
@@ -45,7 +46,7 @@ After commiting all your w.r.t [commit message rules](#commit-message-rules), cr
 
 Model-cmp.nvim uses some tools for linting, formating, and testing. Before you submit any of you changes you should run the make command for formatting linting and testing your code. To submit all your changes you can run `make all` in you termainl to get run `fmt, lint, test, ready-commit`.
 
-*Warning:* Running `make all` in your terminal will stage all your changes and open the diff and commit window for you to commit.
+[!WARNING] Running `make all` in your terminal will stage all your changes and open the diff and commit window for you to commit.
 
 - Formating is done with the help of stylua.
 - Linting is done with the help of luacheck
@@ -55,9 +56,7 @@ You can check Makefile for all the `make` targets.
 
 ## How to Raise Issue
 
-First check if there is any issue from your side if its a bug report.
-
-We already have templates for Both feature request and bug report kind of issues, you check the label lists to tag the correct label for the issue.
+First check if there is any issue from your side if its a bug report. Use the available templates
 
 Make sure you check whether there is any similar issue already present in the Issue section. If you find that some issue is related to someother thing feel free to tag it in the issue itself.
 
@@ -65,7 +64,7 @@ You can create a PR right after raising the Issue.
 
 ## Commit message Rules
 
-Your commit message determines how well I can understand the changes made in a commit. Also this makes it easier for me to search through the commit logs.
+Your commit message determines how well I can understand the changes made in the commit. Also this makes it easier for me to search through the commit logs.
 
 Your commit message should have a prefix, module(optional), issue number that it closes, reason for making such changes (optional)
 
@@ -78,11 +77,11 @@ These things were overlooked when working in the virutal text
 ```
 
 List of prefixes:
-- [Bug] - for making bug fixes
-- [Feat] - for new features
-- [BE] - for formatting and better structuring of code
-- [Edge Case] - for commits related to the issues with edge-case label
-- [Other] - Everything else
+- `[Bug]` - for making bug fixes
+- `[Feat]` - for new features
+- `[BE]` - for formatting and better structuring of code
+- `[Edge Case]` - for commits related to the issues with edge-case label
+- `[Other]` - Everything else
 
 List of module:
 - Can be a file name (if changes are related to one particular file)
@@ -91,12 +90,4 @@ List of module:
 
 ## Writing tests
 
-The testing structure is underdevelopment you can write tests based on what is going around in the test model at the moment.
-
-### Individual files
-
-will be updated soon
-
-### Integration Tests
-
-will be updated soon
+The testing structure is under development you can write tests based on what is going around in the test model at the moment.
