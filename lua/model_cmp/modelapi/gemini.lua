@@ -31,7 +31,9 @@ local function transform_fewshots(prompt)
             }
         end
 
-        table.insert(new_chat, gemini_message)
+        if gemini_message.role ~= nil then
+            table.insert(new_chat, gemini_message)
+        end
     end
     return new_chat
 end
@@ -51,7 +53,7 @@ function M.generate_request(prompt)
         },
     }
 
-    table.insert(messages, { mainmsg })
+    table.insert(messages, mainmsg)
     local apikey = "x-goog-api-key: " .. os.getenv("GEMINI_API_KEY")
     local request = {
         -- TODO: ask user to add model of their choice
@@ -64,9 +66,9 @@ function M.generate_request(prompt)
         "POST",
         "-d",
         vim.fn.json_encode({
-            system_instruction = {
+            systemInstruction = {
                 parts = {
-                    text = prompt.systemrole.content,
+                    { text = prompt.systemrole.content },
                 },
             },
             contents = messages,

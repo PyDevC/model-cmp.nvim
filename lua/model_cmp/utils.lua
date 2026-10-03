@@ -20,7 +20,16 @@ function M.decode_response(response, type)
     end
 
     if type == "gemini" then
-        if response_table.candidates[1].content == nil or response_table.candidates[1].content.parts[1].text == nil then
+        if response_table.candidates == nil or response_table.candidates[1] == nil then
+            logger:warn("Error no candidates available")
+            return
+        end
+        if
+            response_table.candidates[1].content == nil
+            or response_table.candidates[1].content.parts == nil
+            or response_table.candidates[1].content.parts[1] == nil
+            or response_table.candidates[1].content.parts[1].text == nil
+        then
             logger:warn("Error no candidates available")
             return
         end
